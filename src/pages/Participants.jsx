@@ -1,0 +1,820 @@
+import { useEffect, useMemo, useState } from 'react'
+import PageHeader from '../components/PageHeader'
+import ResponsiveTable from '../components/ResponsiveTable'
+import { supabase } from '../lib/supabase'
+
+const initialForm = {
+  full_name: '',
+  age: '',
+  birth_date: '',
+  church: '',
+  cpf: '',
+  address: '',
+  shirt_size: '',
+  gender: '',
+  group_type: '',
+  gymkhana_team: '',
+  phone: '',
+  guardian_phone: '',
+  food_restriction: '',
+  notes: '',
+  is_board_member: false,
+  tribe_id: '',
+  is_active: true,
+}
+
+const initialFilters = {
+  search: '',
+  tribe_id: '',
+  gymkhana_team: '',
+  group_type: '',
+  gender: '',
+  age: '',
+  shirt_size: '',
+  board: '',
+  status: '',
+}
+
+export default function Participants() {
+  const [participants, setParticipants] = useState([])
+  const [tribes, setTribes] = useState([])
+  const [form, setForm] = useState(initialForm)
+  const [filters, setFilters] = useState(initialFilters)
+  const [editingId, setEditingId] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true)
+
+      const { data: participantsData, error: participantsError } =
+        await supabase
+          .from('participants')
+          .select(
+            `
+            *,
+            tribes (
+              name,
+              color,
+              symbol
+            )
+          `
+          )
+          .order('full_name')
+
+      const { data: tribesData, error: tribesError } = await supabase
+        .from('tribes')
+        .select('*')
+        .order('name')
+
+      if (participantsError || tribesError) {
+        console.error(participantsError || tribesError)
+        setLoading(false)
+        return
+      }
+
+      setParticipants(participantsData || [])
+      setTribes(tribesData || [])
+      setLoading(false)
+    }
+
+    loadData()
+  }, [])
+
+  async function reloadParticipants() {
+    const { data, error } = await supabase
+      .from('participants')
+      .select(
+        `
+        *,
+        tribes (
+          name,
+          color,
+          symbol
+        )
+      `
+      )
+      .order('full_name')
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    setParticipants(data || [])
+  }
+
+  function calculateAge(birthDate) {
+    if (!birthDate) return ''
+
+    const today = new Date()
+    const birth = new Date(birthDate)
+
+    let age = today.getFullYear() - birth.getFullYear()
+
+    const monthDifference = today.getMonth() - birth.getMonth()
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--
+    }
+
+    return age
+  }
+
+  function handleChange(event) {
+    const { name, value, type, checked } = event.target
+
+    if (name === 'birth_date') {
+      setForm((currentForm) => ({
+        ...currentForm,
+        birth_date: value,
+        age: calculateAge(value),
+      }))
+
+      return
+    }
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+  }
+
+  function handleFilterChange(event) {
+    const { name, value } = event.target
+
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      [name]: value,
+    }))
+  }
+
+  function clearFilters() {
+    setFilters(initialFilters)
+  }
+
+  function handleEdit(participant) {
+    setEditingId(participant.id)
+
+    setForm({
+      full_name: participant.full_name || '',
+      age: participant.age || '',
+      birth_date: participant.birth_date || '',
+      church: participant.church || '',
+      cpf: participant.cpf || '',
+      address: participant.address || '',
+      shirt_size: participant.shirt_size || '',
+      gender: participant.gender || '',
+      group_type: participant.group_type || '',
+      gymkhana_team: participant.gymkhana_team || '',
+      phone: participant.phone || '',
+      guardian_phone: participant.guardian_phone || '',
+      food_restriction: participant.food_restriction || '',
+      notes: participant.notes || '',
+      is_board_member: participant.is_board_member || false,
+      tribe_id: participant.tribe_id || '',
+      is_active: participant.is_active,
+    })
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null)
+    setForm(initialForm)
+  }
+
+  async function handleDelete() {
+    const confirmDelete = confirm(
+      'Tem certeza que deseja excluir este participante? Essa ação não pode ser desfeita.'
+    )
+
+    if (!confirmDelete) return
+
+    const { error } = await supabase
+      .from('participants')
+      .delete()
+      .eq('id', editingId)
+
+    if (error) {
+      console.error(error)
+      alert('Erro ao excluir participante.')
+      return
+    }
+
+    setForm(initialForm)
+    setEditingId(null)
+    await reloadParticipants()
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    if (!form.full_name.trim()) {
+      alert('Informe o nome do participante.')
+      return
+    }
+
+    if (!form.gender) {
+      alert('Selecione o sexo.')
+      return
+    }
+
+    if (!form.group_type) {
+      alert('Selecione UPA ou UMP.')
+      return
+    }
+
+    setSaving(true)
+
+    const payload = {
+      full_name: form.full_name.trim(),
+      age: form.age ? Number(form.age) : null,
+      birth_date: form.birth_date || null,
+      church: form.church.trim() || null,
+      cpf: form.cpf.trim() || null,
+      address: form.address.trim() || null,
+      shirt_size: form.shirt_size || null,
+      gender: form.gender,
+      group_type: form.group_type,
+      gymkhana_team: form.gymkhana_team || null,
+      phone: form.phone.trim() || null,
+      guardian_phone: form.guardian_phone.trim() || null,
+      food_restriction: form.food_restriction.trim() || null,
+      notes: form.notes.trim() || null,
+      is_board_member: form.is_board_member,
+      tribe_id: form.tribe_id || null,
+      is_active: form.is_active,
+    }
+
+    const request = editingId
+      ? supabase.from('participants').update(payload).eq('id', editingId)
+      : supabase.from('participants').insert(payload)
+
+    const { error } = await request
+
+    if (error) {
+      console.error(error)
+      alert('Erro ao salvar participante.')
+      setSaving(false)
+      return
+    }
+
+    setForm(initialForm)
+    setEditingId(null)
+    await reloadParticipants()
+    setSaving(false)
+  }
+
+  const filteredParticipants = useMemo(() => {
+    return participants.filter((participant) => {
+      const search = filters.search.trim().toLowerCase()
+
+      const matchesSearch = search
+        ? participant.full_name?.toLowerCase().includes(search) ||
+          participant.phone?.toLowerCase().includes(search) ||
+          participant.guardian_phone?.toLowerCase().includes(search) ||
+          participant.church?.toLowerCase().includes(search) ||
+          participant.cpf?.toLowerCase().includes(search)
+        : true
+
+      const matchesTribe = filters.tribe_id
+        ? participant.tribe_id === filters.tribe_id
+        : true
+
+      const matchesGroup = filters.group_type
+        ? participant.group_type === filters.group_type
+        : true
+
+      const matchesGender = filters.gender
+        ? participant.gender === filters.gender
+        : true
+
+      const matchesAge = filters.age
+        ? Number(participant.age) === Number(filters.age)
+        : true
+
+      const matchesShirtSize = filters.shirt_size
+        ? participant.shirt_size === filters.shirt_size
+        : true
+
+      const matchesGymkhanaTeam = filters.gymkhana_team
+        ? filters.gymkhana_team === 'none'
+          ? !participant.gymkhana_team
+          : participant.gymkhana_team === filters.gymkhana_team
+        : true
+
+      const matchesStatus = filters.status
+        ? String(participant.is_active) === filters.status
+        : true
+
+      const matchesBoard = filters.board
+        ? String(participant.is_board_member) === filters.board
+        : true
+
+      return (
+        matchesSearch &&
+        matchesTribe &&
+        matchesGymkhanaTeam &&
+        matchesGroup &&
+        matchesGender &&
+        matchesAge &&
+        matchesShirtSize &&
+        matchesStatus &&
+        matchesBoard
+      )
+    })
+  }, [participants, filters])
+
+  function renderGenderBadge(gender) {
+    const isMale = gender === 'Masculino'
+
+    return (
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          isMale
+            ? 'bg-blue-500/20 text-blue-300'
+            : 'bg-pink-500/20 text-pink-300'
+        }`}
+      >
+        {gender || '-'}
+      </span>
+    )
+  }
+
+  function renderGymkhanaBadge(team) {
+    if (!team) {
+      return <span className="text-zinc-500">Sem equipe</span>
+    }
+
+    return (
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          team === 'A'
+            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/20'
+            : 'bg-violet-500/20 text-violet-300 border border-violet-500/20'
+        }`}
+      >
+        Equipe {team}
+      </span>
+    )
+  }
+
+  const columns = [
+    {
+      key: 'name',
+      label: 'Nome',
+      render: (participant) => (
+        <span className="font-medium">{participant.full_name}</span>
+      ),
+    },
+    {
+      key: 'age',
+      label: 'Idade',
+      render: (participant) => (
+        <span className="text-zinc-400">{participant.age || '-'}</span>
+      ),
+    },
+    {
+      key: 'gender',
+      label: 'Sexo',
+      render: (participant) => renderGenderBadge(participant.gender),
+    },
+    {
+      key: 'group',
+      label: 'Grupo',
+      render: (participant) => (
+        <span className="text-zinc-400">{participant.group_type}</span>
+      ),
+    },
+    {
+      key: 'gymkhana',
+      label: 'Gincana',
+      render: (participant) => renderGymkhanaBadge(participant.gymkhana_team),
+    },
+    {
+      key: 'tribe',
+      label: 'Tribo',
+      render: (participant) =>
+        participant.tribes ? (
+          <div className="flex items-center justify-end gap-3 md:justify-start">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-sm"
+              style={{ backgroundColor: participant.tribes.color }}
+            >
+              {participant.tribes.symbol}
+            </div>
+
+            <span>{participant.tribes.name}</span>
+          </div>
+        ) : (
+          <span className="text-zinc-500">Sem tribo</span>
+        ),
+    },
+    {
+      key: 'board',
+      label: 'Diretoria',
+      render: (participant) => (
+        <span className="text-zinc-400">
+          {participant.is_board_member ? 'Sim' : 'Não'}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (participant) => (
+        <span
+          className={`rounded-full px-3 py-1 text-xs ${
+            participant.is_active
+              ? 'bg-green-500/20 text-green-400'
+              : 'bg-red-500/20 text-red-400'
+          }`}
+        >
+          {participant.is_active ? 'Ativo' : 'Inativo'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Ações',
+      render: (participant) => (
+        <button
+          type="button"
+          onClick={() => handleEdit(participant)}
+          className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 transition hover:bg-zinc-800"
+        >
+          Editar
+        </button>
+      ),
+    },
+  ]
+
+  return (
+    <section>
+      <PageHeader
+        eyebrow="Gestão"
+        title="Participantes"
+        description="Cadastro, organização e filtragem dos participantes do acampamento."
+      />
+
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6"
+      >
+        <h2 className="text-xl font-bold">
+          {editingId ? 'Editar participante' : 'Novo participante'}
+        </h2>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <input
+            name="full_name"
+            value={form.full_name}
+            onChange={handleChange}
+            placeholder="Nome completo"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          />
+
+          <input
+            name="age"
+            value={form.age}
+            onChange={handleChange}
+            placeholder="Idade"
+            type="number"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          />
+
+          <input
+            name="birth_date"
+            type="date"
+            value={form.birth_date}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+          />
+
+          <input
+            name="church"
+            value={form.church}
+            onChange={handleChange}
+            placeholder="Igreja"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+          />
+
+          <input
+            name="cpf"
+            value={form.cpf}
+            onChange={handleChange}
+            placeholder="CPF"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+          />
+
+          <select
+            name="shirt_size"
+            value={form.shirt_size}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Tamanho da camiseta</option>
+            <option value="PP">PP</option>
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG">GG</option>
+          </select>
+
+          <select
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Sexo</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+          </select>
+
+          <select
+            name="group_type"
+            value={form.group_type}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">UPA / UMP</option>
+            <option value="UPA">UPA</option>
+            <option value="UMP">UMP</option>
+          </select>
+
+          <select
+            name="gymkhana_team"
+            value={form.gymkhana_team}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Sem equipe da gincana</option>
+            <option value="A">Equipe A</option>
+            <option value="B">Equipe B</option>
+          </select>
+
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Telefone"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          />
+
+          <input
+            name="guardian_phone"
+            value={form.guardian_phone}
+            onChange={handleChange}
+            placeholder="Telefone do responsável"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          />
+
+          <select
+            name="tribe_id"
+            value={form.tribe_id}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Sem tribo</option>
+
+            {tribes.map((tribe) => (
+              <option key={tribe.id} value={tribe.id}>
+                {tribe.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            name="food_restriction"
+            value={form.food_restriction}
+            onChange={handleChange}
+            placeholder="Restrição alimentar"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          />
+
+          <select
+            name="is_active"
+            value={form.is_active ? 'true' : 'false'}
+            onChange={(event) =>
+              setForm((currentForm) => ({
+                ...currentForm,
+                is_active: event.target.value === 'true',
+              }))
+            }
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="true">Ativo</option>
+            <option value="false">Inativo</option>
+          </select>
+
+          <input
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            placeholder="Endereço completo"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
+          />
+        </div>
+
+        <textarea
+          name="notes"
+          value={form.notes}
+          onChange={handleChange}
+          placeholder="Observações"
+          className="mt-4 min-h-24 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+        />
+
+        <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <label className="flex items-center gap-3 text-sm text-zinc-300">
+            <input
+              name="is_board_member"
+              type="checkbox"
+              checked={form.is_board_member}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+            Participante faz parte da diretoria
+          </label>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {editingId && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="rounded-xl border border-red-500/40 px-6 py-3 font-semibold text-red-400 transition hover:bg-red-500/10"
+                >
+                  Excluir
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="rounded-xl border border-zinc-700 px-6 py-3 font-semibold text-zinc-300 transition hover:bg-zinc-800"
+                >
+                  Cancelar
+                </button>
+              </>
+            )}
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving
+                ? 'Salvando...'
+                : editingId
+                  ? 'Salvar alterações'
+                  : 'Cadastrar participante'}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <h2 className="text-xl font-bold">Lista de participantes</h2>
+
+            <p className="mt-2 text-sm text-zinc-400">
+              {filteredParticipants.length} de {participants.length}{' '}
+              participante(s) exibido(s).
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="rounded-xl border border-zinc-700 px-4 py-3 text-sm text-zinc-300 transition hover:bg-zinc-800"
+          >
+            Limpar filtros
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <input
+            name="search"
+            value={filters.search}
+            onChange={handleFilterChange}
+            placeholder="Buscar por nome, telefone, igreja ou CPF"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
+          />
+
+          <select
+            name="tribe_id"
+            value={filters.tribe_id}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Todas as tribos</option>
+
+            {tribes.map((tribe) => (
+              <option key={tribe.id} value={tribe.id}>
+                {tribe.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="gymkhana_team"
+            value={filters.gymkhana_team}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Todas as equipes</option>
+            <option value="A">Equipe A</option>
+            <option value="B">Equipe B</option>
+            <option value="none">Sem equipe</option>
+          </select>
+
+          <select
+            name="group_type"
+            value={filters.group_type}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">UPA / UMP</option>
+            <option value="UPA">UPA</option>
+            <option value="UMP">UMP</option>
+          </select>
+
+          <select
+            name="gender"
+            value={filters.gender}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Todos os sexos</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+          </select>
+
+          <input
+            name="age"
+            value={filters.age}
+            onChange={handleFilterChange}
+            type="number"
+            min="0"
+            placeholder="Filtrar por idade"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+          />
+
+          <select
+            name="shirt_size"
+            value={filters.shirt_size}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Todas as camisetas</option>
+            <option value="PP">PP</option>
+            <option value="P">P</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
+            <option value="GG">GG</option>
+          </select>
+
+          <select
+            name="board"
+            value={filters.board}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Diretoria e participantes</option>
+            <option value="true">Somente diretoria</option>
+            <option value="false">Somente participantes</option>
+          </select>
+
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+          >
+            <option value="">Todos os status</option>
+            <option value="true">Ativos</option>
+            <option value="false">Inativos</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        {loading ? (
+          <p className="text-zinc-400">Carregando participantes...</p>
+        ) : (
+          <ResponsiveTable
+            columns={columns}
+            data={filteredParticipants}
+            emptyMessage="Nenhum participante encontrado."
+          />
+        )}
+      </div>
+    </section>
+  )
+}
