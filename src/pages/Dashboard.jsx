@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
+import { calculateRanking } from '../domain/ranking'
 import { supabase } from '../lib/supabase'
 
 export default function Dashboard() {
@@ -53,44 +54,9 @@ export default function Dashboard() {
   }, [])
 
   const ranking = useMemo(() => {
-    return tribes
-      .map((tribe) => {
-        const tribeEvents = events.filter(
-          (eventItem) => eventItem.tribe_id === tribe.id
-        )
-
-        const positivePoints = tribeEvents
-          .filter((eventItem) => Number(eventItem.points || 0) > 0)
-          .reduce((sum, eventItem) => sum + Number(eventItem.points || 0), 0)
-
-        const penaltyPoints = Math.abs(
-          tribeEvents
-            .filter((eventItem) => Number(eventItem.points || 0) < 0)
-            .reduce((sum, eventItem) => sum + Number(eventItem.points || 0), 0)
-        )
-
-        const membersCount = participants.filter(
-          (participant) => participant.tribe_id === tribe.id
-        ).length
-
-        return {
-          ...tribe,
-          positivePoints,
-          penaltyPoints,
-          total: positivePoints - penaltyPoints,
-          membersCount,
-          isActiveByMembers: membersCount > 0,
-        }
-      })
-      .filter((tribe) => tribe.isActiveByMembers)
-      .sort((a, b) => {
-        if (b.total !== a.total) return b.total - a.total
-        if (a.penaltyPoints !== b.penaltyPoints)
-          return a.penaltyPoints - b.penaltyPoints
-        if (b.positivePoints !== a.positivePoints)
-          return b.positivePoints - a.positivePoints
-        return a.name.localeCompare(b.name, 'pt-BR')
-      })
+    return calculateRanking(tribes, events, participants, {
+      includeInactive: false,
+    })
   }, [tribes, participants, events])
 
   const activeTribes = ranking.length

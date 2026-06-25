@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { calculateRanking } from '../domain/ranking'
 import { supabase } from '../lib/supabase'
 
 export default function Ranking() {
@@ -30,47 +31,12 @@ export default function Ranking() {
         return
       }
 
-      const rankingData = (tribesData || [])
-        .map((tribe) => {
-          const tribeEvents = (eventsData || []).filter(
-            (eventItem) => eventItem.tribe_id === tribe.id
-          )
-
-          const positivePoints = tribeEvents
-            .filter((eventItem) => Number(eventItem.points || 0) > 0)
-            .reduce((sum, eventItem) => sum + Number(eventItem.points || 0), 0)
-
-          const penaltyPoints = Math.abs(
-            tribeEvents
-              .filter((eventItem) => Number(eventItem.points || 0) < 0)
-              .reduce(
-                (sum, eventItem) => sum + Number(eventItem.points || 0),
-                0
-              )
-          )
-
-          const participantsCount = (participantsData || []).filter(
-            (participant) => participant.tribe_id === tribe.id
-          ).length
-
-          return {
-            ...tribe,
-            positivePoints,
-            penaltyPoints,
-            total: positivePoints - penaltyPoints,
-            participantsCount,
-            isAutomaticallyActive: participantsCount > 0,
-          }
-        })
-        .filter((tribe) => tribe.isAutomaticallyActive)
-        .sort((a, b) => {
-          if (b.total !== a.total) return b.total - a.total
-          if (a.penaltyPoints !== b.penaltyPoints)
-            return a.penaltyPoints - b.penaltyPoints
-          if (b.positivePoints !== a.positivePoints)
-            return b.positivePoints - a.positivePoints
-          return a.name.localeCompare(b.name, 'pt-BR')
-        })
+      const rankingData = calculateRanking(
+        tribesData || [],
+        eventsData || [],
+        participantsData || [],
+        { includeInactive: false }
+      )
 
       setRanking(rankingData)
       setLoading(false)

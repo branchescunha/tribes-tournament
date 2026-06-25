@@ -2,6 +2,8 @@ import { useState } from 'react'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import PageHeader from '../components/PageHeader'
+import { calculateRanking } from '../domain/ranking'
+import { summarizeScores } from '../domain/scoring'
 import { supabase } from '../lib/supabase'
 
 export default function Export() {
@@ -16,45 +18,6 @@ export default function Export() {
     if (team === 'A') return settings.team_a_name || 'Equipe A'
     if (team === 'B') return settings.team_b_name || 'Equipe B'
     return 'Sem equipe'
-  }
-
-  function getTribeStats(tribe, participants, events) {
-    const tribeParticipants = participants.filter(
-      (participant) =>
-        participant.tribe_id === tribe.id && participant.is_active
-    )
-
-    const tribeEvents = events.filter(
-      (eventItem) => eventItem.tribe_id === tribe.id
-    )
-
-    const positivePoints = tribeEvents
-      .filter((eventItem) => Number(eventItem.points || 0) > 0)
-      .reduce((sum, eventItem) => sum + Number(eventItem.points || 0), 0)
-
-    const penaltyPoints = Math.abs(
-      tribeEvents
-        .filter((eventItem) => Number(eventItem.points || 0) < 0)
-        .reduce((sum, eventItem) => sum + Number(eventItem.points || 0), 0)
-    )
-
-    return {
-      participantsCount: tribeParticipants.length,
-      positivePoints,
-      penaltyPoints,
-      total: positivePoints - penaltyPoints,
-      eventsCount: tribeEvents.length,
-      isActive: tribeParticipants.length > 0,
-    }
-  }
-
-  function sortRanking(a, b) {
-    if (b.total !== a.total) return b.total - a.total
-    if (a.penaltyPoints !== b.penaltyPoints)
-      return a.penaltyPoints - b.penaltyPoints
-    if (b.positivePoints !== a.positivePoints)
-      return b.positivePoints - a.positivePoints
-    return a.name.localeCompare(b.name, 'pt-BR')
   }
 
   function styleWorksheet(worksheet) {
@@ -216,16 +179,9 @@ export default function Export() {
         team_b_name: settingsData?.team_b_name || 'Equipe B',
       }
 
-      const ranking = tribes
-        .map((tribe) => {
-          const stats = getTribeStats(tribe, participants, events)
-
-          return {
-            ...tribe,
-            ...stats,
-          }
-        })
-        .sort(sortRanking)
+      const ranking = calculateRanking(tribes, events, participants, {
+        includeInactive: true,
+      })
 
       const activeRanking = ranking.filter((tribe) => tribe.isActive)
 
@@ -245,19 +201,11 @@ export default function Export() {
         (participant) => participant.gymkhana_team === 'B'
       )
 
-      const totalPositivePoints = positiveEvents.reduce(
-        (sum, eventItem) => sum + Number(eventItem.points || 0),
-        0
-      )
-
-      const totalPenaltyPoints = Math.abs(
-        penaltyEvents.reduce(
-          (sum, eventItem) => sum + Number(eventItem.points || 0),
-          0
-        )
-      )
-
-      const totalBalance = totalPositivePoints - totalPenaltyPoints
+      const {
+        positivePoints: totalPositivePoints,
+        penaltyPoints: totalPenaltyPoints,
+        total: totalBalance,
+      } = summarizeScores(events)
 
       const leader = activeRanking[0]
 
