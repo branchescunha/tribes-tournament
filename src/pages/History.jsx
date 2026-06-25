@@ -1,30 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
+import { getScoreCategories, getScoreTypeLabel } from '../domain/scoring'
 import { supabase } from '../lib/supabase'
-
-const pointCategories = [
-  'Pontualidade',
-  'Organização do quarto',
-  'Gincana',
-  'Participação',
-  'Espírito de equipe',
-  'Outro',
-]
-
-const penaltyCategories = [
-  'Atraso',
-  'Quarto desorganizado',
-  'Ausência em atividade',
-  'Ausência no culto',
-  'Ausência no devocional',
-  'Ausência na oração',
-  'Barulho após horário de silêncio',
-  'Desrespeito',
-  'Briga/discussão',
-  'Não cumprimento de tarefa',
-  'Outro',
-]
 
 const initialFilters = {
   search: '',
@@ -109,10 +87,7 @@ export default function History() {
     : participants
 
   const filterCategories = useMemo(() => {
-    if (filters.type === 'POINT') return pointCategories
-    if (filters.type === 'PENALTY') return penaltyCategories
-
-    return [...new Set([...pointCategories, ...penaltyCategories])].sort()
+    return getScoreCategories(filters.type)
   }, [filters.type])
 
   const filteredEvents = useMemo(() => {
@@ -190,7 +165,7 @@ export default function History() {
       key: 'type',
       label: 'Tipo',
       render: (eventItem) => (
-        <span>{eventItem.type === 'POINT' ? 'Ponto' : 'Penalidade'}</span>
+        <span>{getScoreTypeLabel(eventItem.type)}</span>
       ),
     },
     {

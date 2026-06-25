@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  SCORE_CATEGORIES,
+  SCORE_TYPE_LABELS,
   getScoreCategories,
   getScoreTypeLabel,
   getSignedScoreAmount,
@@ -44,8 +46,8 @@ test('summarizeScores calculates positive points, penalties and final total', ()
   })
 })
 
-test('scoring helpers expose the current categories and labels', () => {
-  assert.deepEqual(getScoreCategories('POINT'), [
+test('score categories preserve the current values and order', () => {
+  assert.deepEqual(SCORE_CATEGORIES.POINT, [
     'Pontualidade',
     'Organização do quarto',
     'Gincana',
@@ -53,8 +55,52 @@ test('scoring helpers expose the current categories and labels', () => {
     'Espírito de equipe',
     'Outro',
   ])
+  assert.deepEqual(SCORE_CATEGORIES.PENALTY, [
+    'Atraso',
+    'Quarto desorganizado',
+    'Ausência em atividade',
+    'Ausência no culto',
+    'Ausência no devocional',
+    'Ausência na oração',
+    'Barulho após horário de silêncio',
+    'Desrespeito',
+    'Briga/discussão',
+    'Não cumprimento de tarefa',
+    'Outro',
+  ])
+})
+
+test('getScoreCategories preserves category filtering and combined order', () => {
+  assert.deepEqual(getScoreCategories('POINT'), SCORE_CATEGORIES.POINT)
+  assert.deepEqual(getScoreCategories('PENALTY'), SCORE_CATEGORIES.PENALTY)
+  assert.deepEqual(getScoreCategories(), [
+    'Atraso',
+    'Ausência em atividade',
+    'Ausência na oração',
+    'Ausência no culto',
+    'Ausência no devocional',
+    'Barulho após horário de silêncio',
+    'Briga/discussão',
+    'Desrespeito',
+    'Espírito de equipe',
+    'Gincana',
+    'Não cumprimento de tarefa',
+    'Organização do quarto',
+    'Outro',
+    'Participação',
+    'Pontualidade',
+    'Quarto desorganizado',
+  ])
+})
+
+test('score type labels preserve values and the current fallback', () => {
+  assert.deepEqual(SCORE_TYPE_LABELS, {
+    POINT: 'Ponto',
+    PENALTY: 'Penalidade',
+  })
   assert.equal(getScoreTypeLabel('POINT'), 'Ponto')
   assert.equal(getScoreTypeLabel('PENALTY'), 'Penalidade')
+  assert.equal(getScoreTypeLabel('UNKNOWN'), 'Penalidade')
 })
 
 test('scoring helpers do not mutate received arrays', () => {

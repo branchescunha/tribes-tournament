@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
+import { getScoreCategories, getScoreTypeLabel } from '../domain/scoring'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -12,29 +13,6 @@ const initialForm = {
   reason: '',
   notes: '',
 }
-
-const pointCategories = [
-  'Pontualidade',
-  'Organização do quarto',
-  'Gincana',
-  'Participação',
-  'Espírito de equipe',
-  'Outro',
-]
-
-const penaltyCategories = [
-  'Atraso',
-  'Quarto desorganizado',
-  'Ausência em atividade',
-  'Ausência no culto',
-  'Ausência no devocional',
-  'Ausência na oração',
-  'Barulho após horário de silêncio',
-  'Desrespeito',
-  'Briga/discussão',
-  'Não cumprimento de tarefa',
-  'Outro',
-]
 
 const initialFilters = {
   search: '',
@@ -278,13 +256,10 @@ export default function Scores() {
       )
     : participants
 
-  const formCategories =
-    form.type === 'POINT' ? pointCategories : penaltyCategories
+  const formCategories = getScoreCategories(form.type)
 
   const filterCategories = useMemo(() => {
-    if (filters.type === 'POINT') return pointCategories
-    if (filters.type === 'PENALTY') return penaltyCategories
-    return [...new Set([...pointCategories, ...penaltyCategories])].sort()
+    return getScoreCategories(filters.type)
   }, [filters.type])
 
   const filteredEvents = useMemo(() => {
@@ -352,7 +327,7 @@ export default function Scores() {
       key: 'type',
       label: 'Tipo',
       render: (eventItem) => (
-        <span>{eventItem.type === 'POINT' ? 'Ponto' : 'Penalidade'}</span>
+        <span>{getScoreTypeLabel(eventItem.type)}</span>
       ),
     },
     {
@@ -452,8 +427,8 @@ export default function Scores() {
             }
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="POINT">Ponto</option>
-            <option value="PENALTY">Penalidade</option>
+            <option value="POINT">{getScoreTypeLabel('POINT')}</option>
+            <option value="PENALTY">{getScoreTypeLabel('PENALTY')}</option>
           </select>
 
           <select
