@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import { supabase } from '../lib/supabase'
 
@@ -115,15 +115,15 @@ export default function Tribes() {
     }))
   }
 
-  function getTribeParticipants(tribeId) {
+  const getTribeParticipants = useCallback((tribeId) => {
     return participants.filter(
       (participant) => participant.tribe_id === tribeId
     )
-  }
+  }, [participants])
 
-  function getActiveStatus(tribeId) {
+  const getActiveStatus = useCallback((tribeId) => {
     return getTribeParticipants(tribeId).length > 0
-  }
+  }, [getTribeParticipants])
 
   function handleEdit(tribe) {
     setEditingId(tribe.id)
@@ -233,7 +233,7 @@ export default function Tribes() {
     return currentTribeParticipants.filter(
       (participant) => participant.group_type === 'UMP'
     )
-  }, [editingId, form.room_type, participants])
+  }, [editingId, form.room_type, getTribeParticipants])
 
   const filteredAndSortedTribes = useMemo(() => {
     return [...tribes]
@@ -274,7 +274,7 @@ export default function Tribes() {
 
         return a.name.localeCompare(b.name, 'pt-BR')
       })
-  }, [tribes, participants, filters])
+  }, [tribes, filters, getActiveStatus])
 
   const activeCount = tribes.filter((tribe) => getActiveStatus(tribe.id)).length
 
