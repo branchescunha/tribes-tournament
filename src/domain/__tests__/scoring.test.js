@@ -6,6 +6,7 @@ import {
   getScoreCategories,
   getScoreTypeLabel,
   getSignedScoreAmount,
+  normalizeScoreAmount,
   summarizeScores,
   toScoreNumber,
 } from '../scoring.js'
@@ -26,6 +27,30 @@ test('toScoreNumber treats null and undefined as zero', () => {
 test('getSignedScoreAmount uses the sign of points even when type contradicts it', () => {
   assert.equal(getSignedScoreAmount({ points: 10, type: 'PENALTY' }), 10)
   assert.equal(getSignedScoreAmount({ points: -6, type: 'POINT' }), -6)
+})
+
+test('normalizeScoreAmount returns positive amounts for points', () => {
+  assert.equal(normalizeScoreAmount('POINT', 10), 10)
+  assert.equal(normalizeScoreAmount('POINT', -10), 10)
+  assert.equal(normalizeScoreAmount('POINT', '10'), 10)
+})
+
+test('normalizeScoreAmount returns negative amounts for penalties', () => {
+  assert.equal(normalizeScoreAmount('PENALTY', 10), -10)
+  assert.equal(normalizeScoreAmount('PENALTY', -10), -10)
+  assert.equal(normalizeScoreAmount('PENALTY', '10'), -10)
+})
+
+test('normalizeScoreAmount preserves zero for both score types', () => {
+  assert.equal(normalizeScoreAmount('POINT', 0), 0)
+  assert.equal(normalizeScoreAmount('PENALTY', 0), 0)
+})
+
+test('normalizeScoreAmount preserves current numeric conversion behavior', () => {
+  assert.equal(normalizeScoreAmount('POINT', null), 0)
+  assert.equal(normalizeScoreAmount('PENALTY', null), 0)
+  assert.equal(Number.isNaN(normalizeScoreAmount('POINT', 'invalid')), true)
+  assert.equal(Number.isNaN(normalizeScoreAmount('PENALTY', 'invalid')), true)
 })
 
 test('summarizeScores calculates positive points, penalties and final total', () => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
+import { normalizeScoreAmount } from '../domain/scoring'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -162,10 +163,7 @@ export default function Inspections() {
         inspection_day: form.inspection_day,
         inspection_period: form.inspection_period,
         type: form.type,
-        points:
-          form.type === 'PENALTY'
-            ? -Math.abs(Number(form.points))
-            : Math.abs(Number(form.points)),
+        points: normalizeScoreAmount(form.type, form.points),
         has_photo: form.has_photo,
         notes: form.notes.trim() || null,
       }

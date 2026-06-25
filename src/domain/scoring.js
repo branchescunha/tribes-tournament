@@ -35,6 +35,13 @@ export function getSignedScoreAmount(scoreEntry) {
   return toScoreNumber(scoreEntry?.points)
 }
 
+export function normalizeScoreAmount(type, value) {
+  const amount = Math.abs(toScoreNumber(value))
+
+  if (amount === 0) return 0
+  return type === 'PENALTY' ? -amount : amount
+}
+
 export function summarizeScores(scores = []) {
   return scores.reduce(
     (summary, scoreEntry) => {

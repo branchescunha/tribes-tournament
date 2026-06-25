@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
-import { getScoreCategories, getScoreTypeLabel } from '../domain/scoring'
+import {
+  getScoreCategories,
+  getScoreTypeLabel,
+  normalizeScoreAmount,
+} from '../domain/scoring'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -213,14 +217,12 @@ export default function Scores() {
 
     setSaving(true)
 
-    const value = Number(form.points)
-
     const payload = {
       tribe_id: form.tribe_id,
       participant_id: form.participant_id || null,
       type: form.type,
       category: form.category,
-      points: form.type === 'PENALTY' ? value * -1 : value,
+      points: normalizeScoreAmount(form.type, form.points),
       reason: form.reason.trim() || null,
       notes: form.notes.trim() || null,
     }
