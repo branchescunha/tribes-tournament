@@ -50,7 +50,7 @@ export default function ForgotPassword() {
         className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8"
       >
         <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-          Admin
+          TribeScore
         </p>
 
         <h1 className="mt-4 text-4xl font-bold leading-tight">
@@ -58,7 +58,7 @@ export default function ForgotPassword() {
         </h1>
 
         <p className="mt-4 text-zinc-400">
-          Envie um link de recuperação para o e-mail administrativo.
+          Recupere o acesso ao painel administrativo do evento.
         </p>
 
         <label className="mt-8 block text-sm font-medium text-zinc-300">

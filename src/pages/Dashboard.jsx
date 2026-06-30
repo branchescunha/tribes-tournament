@@ -79,9 +79,9 @@ export default function Dashboard() {
     return (
       <section>
         <PageHeader
-          eyebrow="Painel Administrativo"
+          eyebrow="TribeScore"
           title="Dashboard"
-          description="Visão geral do Torneio das Tribos."
+          description="Visão geral do evento."
         />
         <p className="text-zinc-400">Carregando dashboard...</p>
       </section>
@@ -91,9 +91,9 @@ export default function Dashboard() {
   return (
     <section>
       <PageHeader
-        eyebrow="Painel Administrativo"
+        eyebrow="TribeScore"
         title="Dashboard"
-        description="Visão geral do Torneio das Tribos."
+        description="Visão geral do evento."
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

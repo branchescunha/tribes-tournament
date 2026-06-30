@@ -210,7 +210,7 @@ export default function Export() {
       const leader = activeRanking[0]
 
       const workbook = new ExcelJS.Workbook()
-      workbook.creator = 'O Torneio das Tribos'
+      workbook.creator = 'TribeScore'
       workbook.created = new Date()
 
       addSheet(
@@ -604,7 +604,7 @@ export default function Export() {
 
       saveAs(
         new Blob([buffer]),
-        `torneio-das-tribos-backup-completo-${new Date()
+        `tribescore-backup-completo-${new Date()
           .toISOString()
           .slice(0, 10)}.xlsx`
       )
@@ -621,7 +621,7 @@ export default function Export() {
       <PageHeader
         eyebrow="Exportação"
         title="Backup operacional completo"
-        description="Exporte todos os dados do torneio em uma planilha completa e organizada."
+        description="Exporte os dados do evento em uma planilha completa e organizada."
       />
 
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">

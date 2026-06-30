@@ -51,12 +51,14 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
       <div className="flex items-start justify-between gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-            Admin
+            TribeScore
           </p>
 
-          <h1 className="mt-3 text-xl font-bold">O Torneio das Tribos</h1>
+          <h1 className="mt-3 text-xl font-bold">Painel do evento</h1>
 
-          <p className="mt-2 text-sm text-zinc-400">Painel de controle</p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Gestão de pontuações
+          </p>
         </div>
 
         <button
@@ -98,7 +100,7 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
           className="flex items-center gap-3 rounded-xl border border-zinc-800 px-4 py-3 text-sm text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
         >
           <Trophy size={18} />
-          Ver ranking público
+          Ver ranking do evento
         </Link>
 
         <button
