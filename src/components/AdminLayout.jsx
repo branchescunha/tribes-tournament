@@ -23,6 +23,7 @@ export default function AdminLayout({ children }) {
             <button
               type="button"
               onClick={() => setIsMenuOpen(true)}
+              aria-label="Abrir menu"
               className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-zinc-300 shadow-lg"
             >
               <Menu size={24} />
