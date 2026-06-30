@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthContext } from '../hooks/useAuth'
 
@@ -9,25 +9,28 @@ export default function Login() {
   const { session, loadingAuth } = useAuthContext()
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(event) {
     event.preventDefault()
 
+    setError('')
+
     if (!password.trim()) {
-      alert('Informe a senha de acesso.')
+      setError('Informe a senha de acesso.')
       return
     }
 
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: loginError } = await supabase.auth.signInWithPassword({
       email: ADMIN_EMAIL,
       password,
     })
 
-    if (error) {
-      console.error(error)
-      alert('Senha inválida.')
+    if (loginError) {
+      console.error(loginError)
+      setError('Senha inválida.')
       setLoading(false)
       return
     }
@@ -73,6 +76,12 @@ export default function Login() {
           className="mt-8 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
         />
 
+        {error && (
+          <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {error}
+          </p>
+        )}
+
         <button
           type="submit"
           disabled={loading}
@@ -81,12 +90,19 @@ export default function Login() {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
 
-        <a
-          href="/ranking"
+        <Link
+          to="/forgot-password"
+          className="mt-5 block text-center text-sm text-zinc-400 hover:text-yellow-500"
+        >
+          Esqueci minha senha
+        </Link>
+
+        <Link
+          to="/ranking"
           className="mt-6 block text-center text-sm text-zinc-400 hover:text-yellow-500"
         >
           Ver ranking público
-        </a>
+        </Link>
       </form>
     </main>
   )

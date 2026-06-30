@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   ClipboardCheck,
   Swords,
@@ -8,6 +8,7 @@ import {
   LogOut,
   PlusCircle,
   Trophy,
+  UserRound,
   Users,
   X,
 } from 'lucide-react'
@@ -15,6 +16,7 @@ import { supabase } from '../lib/supabase'
 
 const links = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { label: 'Conta', path: '/admin/account', icon: UserRound },
   { label: 'Tribos', path: '/admin/tribos', icon: Trophy },
   { label: 'Participantes', path: '/admin/participantes', icon: Users },
   { label: 'Pontuação', path: '/admin/pontuacao', icon: PlusCircle },
@@ -26,9 +28,18 @@ const links = [
 
 export default function Sidebar({ isMenuOpen = false, onClose }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    onClose?.()
+    navigate('/login', { replace: true })
   }
 
   return (
