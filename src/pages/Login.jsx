@@ -57,15 +57,15 @@ export default function Login() {
         className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8"
       >
         <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-          Admin
+          TribeScore
         </p>
 
         <h1 className="mt-4 text-4xl font-bold leading-tight">
-          Login Administrativo
+          Painel administrativo
         </h1>
 
         <p className="mt-4 text-zinc-400">
-          Acesso restrito para a diretoria do Torneio das Tribos.
+          Acesse o painel administrativo do seu evento.
         </p>
 
         <input
@@ -101,7 +101,7 @@ export default function Login() {
           to="/ranking"
           className="mt-6 block text-center text-sm text-zinc-400 hover:text-yellow-500"
         >
-          Ver ranking público
+          Ver ranking do evento
         </Link>
       </form>
     </main>

@@ -59,7 +59,7 @@ export default function Ranking() {
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-yellow-500 md:text-sm">
-              O Torneio das Tribos
+              TribeScore
             </p>
 
             <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
@@ -67,8 +67,9 @@ export default function Ranking() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
-              Critério de desempate: maior saldo, menor penalidade, maior
-              pontuação positiva e ordem alfabética.
+              Ranking público do evento com critério de desempate por maior
+              saldo, menor penalidade, maior pontuação positiva e ordem
+              alfabética.
             </p>
           </div>
 

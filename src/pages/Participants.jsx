@@ -459,7 +459,7 @@ export default function Participants() {
       <PageHeader
         eyebrow="Gestão"
         title="Participantes"
-        description="Cadastro, organização e filtragem dos participantes do acampamento."
+        description="Cadastro, organização e filtragem dos participantes do evento."
       />
 
       <form
@@ -639,7 +639,7 @@ export default function Participants() {
               onChange={handleChange}
               className="h-4 w-4"
             />
-            Participante faz parte da diretoria
+            Participante faz parte da equipe organizadora
           </label>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -786,8 +786,8 @@ export default function Participants() {
             onChange={handleFilterChange}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="">Diretoria e participantes</option>
-            <option value="true">Somente diretoria</option>
+            <option value="">Organização e participantes</option>
+            <option value="true">Somente organização</option>
             <option value="false">Somente participantes</option>
           </select>
 
