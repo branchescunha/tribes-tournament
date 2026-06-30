@@ -66,6 +66,31 @@ Produção:
 - `https://dominio-do-deploy.com/reset-password`
 - `https://dominio-do-deploy.com/**`
 
+## Deploy do MVP
+
+A plataforma recomendada para o deploy inicial é a Vercel.
+
+Configuração do projeto:
+
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Variáveis de ambiente:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+Configure as variáveis diretamente na plataforma de deploy. Não versionar `.env` nem valores reais de credenciais.
+
+Para rotas client-side como `/login`, `/forgot-password`, `/reset-password`, `/admin`, `/admin/account` e `/ranking`, o projeto inclui `vercel.json` com fallback para `index.html`.
+
+Antes de publicar, confirme no Supabase Auth as URLs de redirecionamento do ambiente de produção:
+
+- `https://URL_DO_DEPLOY`
+- `https://URL_DO_DEPLOY/reset-password`
+- `https://URL_DO_DEPLOY/**`
+
+O `npm audit` ainda pode reportar vulnerabilidades moderadas de `uuid` via `exceljs`. Essa correção exige `npm audit fix --force` com mudança insegura de versão do `exceljs`, então deve ser tratada em etapa própria.
+
 ## Roadmap inicial
 
 - Limpeza e organização do repositório.
