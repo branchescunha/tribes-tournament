@@ -68,7 +68,12 @@ export default function Login() {
           Acesse o painel administrativo do seu evento.
         </p>
 
+        <label htmlFor="admin-password" className="sr-only">
+          Senha de acesso
+        </label>
+
         <input
+          id="admin-password"
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -77,7 +82,10 @@ export default function Login() {
         />
 
         {error && (
-          <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
             {error}
           </p>
         )}

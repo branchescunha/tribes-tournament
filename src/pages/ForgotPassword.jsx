@@ -61,11 +61,15 @@ export default function ForgotPassword() {
           Recupere o acesso ao painel administrativo do evento.
         </p>
 
-        <label className="mt-8 block text-sm font-medium text-zinc-300">
+        <label
+          htmlFor="recovery-email"
+          className="mt-8 block text-sm font-medium text-zinc-300"
+        >
           E-mail
         </label>
 
         <input
+          id="recovery-email"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -74,13 +78,19 @@ export default function ForgotPassword() {
         />
 
         {error && (
-          <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
             {error}
           </p>
         )}
 
         {success && (
-          <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          <p
+            role="status"
+            className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+          >
             {success}
           </p>
         )}

@@ -120,17 +120,24 @@ export default function ResetPassword() {
         </p>
 
         {!checkingSession && !hasRecoverySession && (
-          <p className="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">
+          <p
+            role="alert"
+            className="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100"
+          >
             Link expirado ou sessão de recuperação não encontrada. Solicite um
             novo e-mail de recuperação.
           </p>
         )}
 
-        <label className="mt-8 block text-sm font-medium text-zinc-300">
+        <label
+          htmlFor="new-password"
+          className="mt-8 block text-sm font-medium text-zinc-300"
+        >
           Nova senha
         </label>
 
         <input
+          id="new-password"
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -138,11 +145,15 @@ export default function ResetPassword() {
           className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
         />
 
-        <label className="mt-5 block text-sm font-medium text-zinc-300">
+        <label
+          htmlFor="confirm-new-password"
+          className="mt-5 block text-sm font-medium text-zinc-300"
+        >
           Confirmar nova senha
         </label>
 
         <input
+          id="confirm-new-password"
           type="password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
@@ -151,13 +162,19 @@ export default function ResetPassword() {
         />
 
         {error && (
-          <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
             {error}
           </p>
         )}
 
         {success && (
-          <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          <p
+            role="status"
+            className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+          >
             {success}
           </p>
         )}

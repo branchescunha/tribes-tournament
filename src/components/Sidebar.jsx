@@ -64,6 +64,7 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
         <button
           type="button"
           onClick={onClose}
+          aria-label="Fechar menu"
           className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 lg:hidden"
         >
           <X size={20} />

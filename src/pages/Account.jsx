@@ -93,11 +93,15 @@ export default function Account() {
         >
           <h2 className="text-xl font-semibold">Alterar senha</h2>
 
-          <label className="mt-6 block text-sm font-medium text-zinc-300">
+          <label
+            htmlFor="account-new-password"
+            className="mt-6 block text-sm font-medium text-zinc-300"
+          >
             Nova senha
           </label>
 
           <input
+            id="account-new-password"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -105,11 +109,15 @@ export default function Account() {
             className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
-          <label className="mt-5 block text-sm font-medium text-zinc-300">
+          <label
+            htmlFor="account-confirm-password"
+            className="mt-5 block text-sm font-medium text-zinc-300"
+          >
             Confirmar nova senha
           </label>
 
           <input
+            id="account-confirm-password"
             type="password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
@@ -118,13 +126,19 @@ export default function Account() {
           />
 
           {error && (
-            <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            <p
+              role="alert"
+              className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+            >
               {error}
             </p>
           )}
 
           {success && (
-            <p className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            <p
+              role="status"
+              className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+            >
               {success}
             </p>
           )}
