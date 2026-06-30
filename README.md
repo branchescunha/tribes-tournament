@@ -50,6 +50,22 @@ VITE_SUPABASE_ANON_KEY=
 
 Valores reais de ambiente não devem ser versionados no Git.
 
+## Configuração do Supabase Auth
+
+Para que a recuperação de senha funcione corretamente, configure as URLs de redirecionamento no Supabase Dashboard.
+
+Ambiente local:
+
+- `http://localhost:4000`
+- `http://localhost:4000/reset-password`
+- `http://localhost:4000/**`
+
+Produção:
+
+- `https://dominio-do-deploy.com`
+- `https://dominio-do-deploy.com/reset-password`
+- `https://dominio-do-deploy.com/**`
+
 ## Roadmap inicial
 
 - Limpeza e organização do repositório.
