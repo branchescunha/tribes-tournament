@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { calculateRanking } from '../domain/ranking'
+import { getCampNameStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 export default function Dashboard() {
@@ -8,6 +10,10 @@ export default function Dashboard() {
   const [participants, setParticipants] = useState([])
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const { activeCampId } = useActiveCamp()
+  const activeCampName = activeCampId
+    ? window.localStorage.getItem(getCampNameStorageKey(activeCampId))
+    : ''
 
   useEffect(() => {
     async function loadDashboard() {
@@ -95,6 +101,27 @@ export default function Dashboard() {
         title="Dashboard"
         description="Visão geral do evento."
       />
+
+      {activeCampName ? (
+        <div className="mb-6 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-100">
+          Acampamento ativo:{' '}
+          <strong className="text-white">{activeCampName}</strong>
+        </div>
+      ) : (
+        <div className="mb-6 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5">
+          <p className="text-sm text-yellow-100">
+            Crie ou selecione um acampamento para começar a organizar equipes,
+            participantes e pontuações.
+          </p>
+
+          <Link
+            to="/admin/acampamentos"
+            className="mt-4 inline-flex rounded-xl bg-yellow-500 px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-yellow-400"
+          >
+            Ir para acampamentos
+          </Link>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
