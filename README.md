@@ -1,17 +1,14 @@
 # TribeScore
 
-Sistema web para organizar pontuações, tribos, equipes, participantes e rankings em eventos de igrejas.
+Sistema web para organizar pontuações, tribos/equipes, participantes, rankings, gincanas e inspeções em eventos de igrejas.
 
-## Objetivo
+Produção: https://tribes-tournament.vercel.app
 
-O TribeScore está sendo desenvolvido para apoiar a organização de acampamentos, retiros, congressos, gincanas e outros eventos em que grupos precisam registrar pontos, penalidades e rankings de forma clara.
-
-A proposta é transformar o projeto em uma aplicação profissional, reutilizável e preparada para que outras igrejas possam adaptar o sistema aos seus próprios eventos no futuro.
-
-## Funcionalidades atuais
+## Funcionalidades
 
 - Ranking público das tribos.
 - Painel administrativo protegido por autenticação.
+- Recuperação e redefinição de senha.
 - Cadastro e edição de tribos.
 - Cadastro e filtragem de participantes.
 - Registro de pontos e penalidades.
@@ -19,9 +16,9 @@ A proposta é transformar o projeto em uma aplicação profissional, reutilizáv
 - Controle de gincanas.
 - Controle de inspeções de quartos.
 - Exportação completa dos dados em Excel.
-- Interface responsiva para uso em celular e notebook.
+- Interface responsiva para celular e notebook.
 
-## Tecnologias utilizadas
+## Tecnologias Utilizadas
 
 - React
 - Vite
@@ -31,17 +28,27 @@ A proposta é transformar o projeto em uma aplicação profissional, reutilizáv
 - Lucide React
 - ExcelJS
 
-## Status do projeto
+## Rotas Principais
 
-Em evolução.
+- `/ranking`: ranking público do evento.
+- `/login`: acesso ao painel administrativo.
+- `/recuperar-senha`: solicitação de recuperação de senha.
+- `/redefinir-senha`: criação de nova senha via Supabase Auth.
+- `/admin`: dashboard administrativo.
+- `/admin/conta`: configurações da conta.
+- `/admin/tribos`: gestão de tribos.
+- `/admin/participantes`: gestão de participantes.
+- `/admin/pontuacao`: lançamentos de pontos e penalidades.
+- `/admin/historico`: histórico de lançamentos.
+- `/admin/gincana`: controle da gincana.
+- `/admin/inspecoes`: controle de inspeções.
+- `/admin/exportacao`: exportação dos dados.
 
-Esta versão já possui funcionalidades operacionais, mas ainda está sendo organizada para se tornar um produto mais reutilizável, documentado e adequado para uso por diferentes igrejas.
+As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` continuam disponíveis apenas como compatibilidade e redirecionam para as rotas em português.
 
-## Variáveis de ambiente
+## Variáveis de Ambiente
 
 O projeto depende de variáveis de ambiente para conexão com o Supabase.
-
-Crie um arquivo `.env` local com base no arquivo `.env.example`:
 
 ```env
 VITE_SUPABASE_URL=
@@ -50,11 +57,19 @@ VITE_SUPABASE_ANON_KEY=
 
 Valores reais de ambiente não devem ser versionados no Git.
 
-## Configuração do Supabase Auth
+## Deploy
 
-Para que a recuperação de senha funcione corretamente, configure as URLs de redirecionamento no Supabase Dashboard.
+Plataforma recomendada: Vercel.
 
-Ambiente local:
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+
+O projeto inclui `vercel.json` com fallback para `index.html`, necessário para rotas client-side após refresh ou acesso direto.
+
+Configure no Supabase Auth as URLs de redirecionamento:
+
+Local:
 
 - `http://localhost:4000`
 - `http://localhost:4000/redefinir-senha`
@@ -66,37 +81,30 @@ Produção:
 - `https://tribes-tournament.vercel.app/redefinir-senha`
 - `https://tribes-tournament.vercel.app/**`
 
-## Deploy do MVP
+## Status do Projeto
 
-A plataforma recomendada para o deploy inicial é a Vercel.
+MVP funcional em evolução.
 
-Configuração do projeto:
+O TribeScore já cobre o fluxo principal de pontuação, ranking, administração e exportação. Próximas evoluções devem tratar personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
 
-- Framework: Vite
-- Build command: `npm run build`
-- Output directory: `dist`
-- Variáveis de ambiente:
-  - `VITE_SUPABASE_URL`
-  - `VITE_SUPABASE_ANON_KEY`
+## Observações Técnicas
 
-Configure as variáveis diretamente na plataforma de deploy. Não versionar `.env` nem valores reais de credenciais.
+- O build de produção passa, mas o Vite ainda alerta que alguns chunks passam de 500 kB.
+- O `npm audit` pode reportar 2 vulnerabilidades moderadas em `uuid` via `exceljs`.
+- A correção automática dessas vulnerabilidades exige `npm audit fix --force` e alteração insegura/downgrade do `exceljs`; por isso, foi aceita temporariamente.
 
-Para rotas client-side como `/login`, `/recuperar-senha`, `/redefinir-senha`, `/admin`, `/admin/conta` e `/ranking`, o projeto inclui `vercel.json` com fallback para `index.html`.
+## Estrutura do Projeto
 
-As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` continuam disponíveis apenas como compatibilidade e redirecionam para as rotas em português.
+```text
+src/
+  components/   Componentes reutilizáveis da interface
+  data/         Dados iniciais e apoios locais
+  domain/       Regras puras de ranking e pontuação
+  hooks/        Hooks compartilhados
+  lib/          Configuração de integrações
+  pages/        Telas principais da aplicação
+```
 
-Antes de publicar, confirme no Supabase Auth as URLs de redirecionamento do ambiente de produção:
+## Autor
 
-- `https://tribes-tournament.vercel.app`
-- `https://tribes-tournament.vercel.app/redefinir-senha`
-- `https://tribes-tournament.vercel.app/**`
-
-O `npm audit` ainda pode reportar vulnerabilidades moderadas de `uuid` via `exceljs`. Essa correção exige `npm audit fix --force` com mudança insegura de versão do `exceljs`, então deve ser tratada em etapa própria.
-
-## Roadmap inicial
-
-- Limpeza e organização do repositório.
-- Centralização das regras de ranking e pontuação.
-- Melhorias de UI, UX, responsividade e acessibilidade.
-- Preparação para personalização de eventos, equipes, cores e identidade visual.
-- Evolução futura para múltiplos eventos, autenticação mais completa e uso avançado do Supabase.
+André Vinícius
