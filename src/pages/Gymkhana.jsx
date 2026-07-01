@@ -208,7 +208,7 @@ export default function Gymkhana() {
 
     if (membersWithoutTribe.length > 0) {
       alert(
-        'Todos os integrantes da equipe vencedora precisam estar vinculados a uma tribo.'
+        'Todos os integrantes da equipe vencedora precisam estar vinculados a uma equipe.'
       )
       return
     }
@@ -350,7 +350,7 @@ export default function Gymkhana() {
             </p>
 
             <p className="mt-2 text-sm font-medium text-zinc-300">
-              {participant.tribes?.name || 'Sem tribo'}
+              {participant.tribes?.name || 'Sem equipe'}
             </p>
           </div>
 

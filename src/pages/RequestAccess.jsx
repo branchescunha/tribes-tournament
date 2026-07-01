@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 export default function RequestAccess() {
   const [name, setName] = useState('')
@@ -8,30 +9,59 @@ export default function RequestAccess() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
 
     setError('')
     setSuccess('')
 
-    if (!name.trim()) {
+    const nameValue = name.trim()
+    const emailValue = email.trim()
+    const organizationValue = organization.trim()
+    const messageValue = message.trim()
+
+    if (!nameValue) {
       setError('Informe seu nome.')
       return
     }
 
-    if (!email.trim()) {
+    if (!emailValue) {
       setError('Informe seu e-mail.')
       return
     }
 
-    if (!organization.trim()) {
+    if (!organizationValue) {
       setError('Informe sua igreja ou organização.')
       return
     }
 
+    setLoading(true)
+
+    const { error: insertError } = await supabase
+      .from('access_requests')
+      .insert({
+        name: nameValue,
+        email: emailValue,
+        church_name: organizationValue,
+        message: messageValue || null,
+      })
+
+    setLoading(false)
+
+    if (insertError) {
+      console.error(insertError)
+      setError('Não foi possível enviar a solicitação. Tente novamente.')
+      return
+    }
+
+    setName('')
+    setEmail('')
+    setOrganization('')
+    setMessage('')
     setSuccess(
-      'Solicitação registrada localmente. Entre em contato com a organização responsável pelo evento para concluir a criação da conta.',
+      'Solicitação enviada com sucesso. A organização responsável irá avaliar o pedido de acesso.',
     )
   }
 
@@ -42,7 +72,7 @@ export default function RequestAccess() {
         className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8"
       >
         <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-          TribeScore
+          AcampGestor
         </p>
 
         <h1 className="mt-4 text-4xl font-bold leading-tight">
@@ -50,9 +80,9 @@ export default function RequestAccess() {
         </h1>
 
         <p className="mt-4 text-zinc-400">
-          O TribeScore utiliza cadastro administrativo controlado. Envie seus
-          dados para que a organização responsável pelo evento possa avaliar a
-          criação da sua conta.
+          O cadastro administrativo do AcampGestor é controlado. Envie seus
+          dados para que a organização responsável avalie a criação da sua
+          conta.
         </p>
 
         <label
@@ -142,9 +172,10 @@ export default function RequestAccess() {
 
         <button
           type="submit"
-          className="mt-6 w-full rounded-xl bg-yellow-500 px-4 py-4 font-semibold text-zinc-950 transition hover:bg-yellow-400"
+          disabled={loading}
+          className="mt-6 w-full rounded-xl bg-yellow-500 px-4 py-4 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Enviar solicitação
+          {loading ? 'Enviando...' : 'Enviar solicitação'}
         </button>
 
         <Link

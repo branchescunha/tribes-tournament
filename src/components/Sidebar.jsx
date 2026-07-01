@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   ClipboardCheck,
+  FileUser,
   Swords,
   Download,
   History,
@@ -17,7 +18,8 @@ import { supabase } from '../lib/supabase'
 const links = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
   { label: 'Conta', path: '/admin/conta', icon: UserRound },
-  { label: 'Tribos', path: '/admin/tribos', icon: Trophy },
+  { label: 'Solicitações', path: '/admin/solicitacoes', icon: FileUser },
+  { label: 'Equipes', path: '/admin/tribos', icon: Trophy },
   { label: 'Participantes', path: '/admin/participantes', icon: Users },
   { label: 'Pontuação', path: '/admin/pontuacao', icon: PlusCircle },
   { label: 'Gincana', path: '/admin/gincana', icon: Swords },
@@ -51,13 +53,13 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
       <div className="flex items-start justify-between gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-            TribeScore
+            AcampGestor
           </p>
 
-          <h1 className="mt-3 text-xl font-bold">Painel do evento</h1>
+          <h1 className="mt-3 text-xl font-bold">Painel do acampamento</h1>
 
           <p className="mt-2 text-sm text-zinc-400">
-            Gestão de pontuações
+            Gestão de acampamentos
           </p>
         </div>
 

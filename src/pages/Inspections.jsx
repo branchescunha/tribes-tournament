@@ -136,7 +136,7 @@ export default function Inspections() {
     event.preventDefault()
 
     if (!form.tribe_id) {
-      alert('Selecione uma tribo.')
+      alert('Selecione uma equipe.')
       return
     }
 
@@ -281,7 +281,7 @@ export default function Inspections() {
     },
     {
       key: 'tribe',
-      label: 'Tribo',
+      label: 'Equipe',
       render: (inspection) => (
         <div className="flex items-center justify-end gap-3 md:justify-start">
           <div
@@ -385,7 +385,7 @@ export default function Inspections() {
             onChange={handleChange}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="">Selecione a tribo</option>
+            <option value="">Selecione a equipe</option>
 
             {activeTribes.map((tribe) => (
               <option key={tribe.id} value={tribe.id}>

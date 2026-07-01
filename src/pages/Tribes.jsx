@@ -147,7 +147,7 @@ export default function Tribes() {
 
   async function handleDelete() {
     const confirmDelete = confirm(
-      'Tem certeza que deseja excluir esta tribo? Essa ação não pode ser desfeita.'
+      'Tem certeza que deseja excluir esta equipe? Essa ação não pode ser desfeita.'
     )
 
     if (!confirmDelete) return
@@ -156,7 +156,7 @@ export default function Tribes() {
 
     if (error) {
       console.error(error)
-      alert('Erro ao excluir tribo.')
+      alert('Erro ao excluir equipe.')
       return
     }
 
@@ -169,12 +169,12 @@ export default function Tribes() {
     event.preventDefault()
 
     if (!form.name.trim()) {
-      alert('Informe o nome da tribo.')
+      alert('Informe o nome da equipe.')
       return
     }
 
     if (!form.symbol.trim()) {
-      alert('Informe o símbolo da tribo.')
+      alert('Informe o símbolo da equipe.')
       return
     }
 
@@ -198,7 +198,7 @@ export default function Tribes() {
 
     if (error) {
       console.error(error)
-      alert('Erro ao salvar tribo.')
+      alert('Erro ao salvar equipe.')
       setSaving(false)
       return
     }
@@ -285,8 +285,8 @@ export default function Tribes() {
     <section>
       <PageHeader
         eyebrow="Gestão"
-        title="Tribos"
-        description="Gerenciamento das tribos, quartos e responsáveis."
+        title="Equipes"
+        description="Gerenciamento das equipes, quartos e responsáveis."
       />
 
       <form
@@ -294,7 +294,7 @@ export default function Tribes() {
         className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6"
       >
         <h2 className="text-xl font-bold">
-          {editingId ? 'Editar tribo' : 'Nova tribo'}
+          {editingId ? 'Editar equipe' : 'Nova equipe'}
         </h2>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -302,7 +302,7 @@ export default function Tribes() {
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="Nome da tribo"
+            placeholder="Nome da equipe"
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
@@ -384,7 +384,7 @@ export default function Tribes() {
                 isUpaRoom
                   ? 'Tio responsável'
                   : isUmpRoom
-                    ? 'Líder da tribo'
+                    ? 'Líder da equipe'
                     : 'Responsável / líder'
               }
               className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
@@ -395,7 +395,7 @@ export default function Tribes() {
         {isUmpRoom && editingId && availableLeaders.length === 0 && (
           <p className="mt-3 text-sm text-zinc-400">
             Para selecionar um líder automaticamente, cadastre participantes UMP
-            compatíveis nesta tribo.
+            compatíveis nesta equipe.
           </p>
         )}
 
@@ -429,7 +429,7 @@ export default function Tribes() {
               ? 'Salvando...'
               : editingId
                 ? 'Salvar alterações'
-                : 'Cadastrar tribo'}
+                : 'Cadastrar equipe'}
           </button>
         </div>
       </form>
@@ -437,10 +437,10 @@ export default function Tribes() {
       <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <h2 className="text-xl font-bold">Lista de tribos</h2>
+            <h2 className="text-xl font-bold">Lista de equipes</h2>
 
             <p className="mt-2 text-sm text-zinc-400">
-              {filteredAndSortedTribes.length} de {tribes.length} tribo(s)
+              {filteredAndSortedTribes.length} de {tribes.length} equipe(s)
               exibida(s). {activeCount} ativa(s).
             </p>
           </div>
@@ -459,7 +459,7 @@ export default function Tribes() {
             name="search"
             value={filters.search}
             onChange={handleFilterChange}
-            placeholder="Buscar por tribo, quarto ou responsável"
+            placeholder="Buscar por equipe, quarto ou responsável"
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
           />
 
@@ -500,10 +500,10 @@ export default function Tribes() {
 
       <div className="mt-8">
         {loading ? (
-          <p className="text-zinc-400">Carregando tribos...</p>
+          <p className="text-zinc-400">Carregando equipes...</p>
         ) : filteredAndSortedTribes.length === 0 ? (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 text-center text-zinc-400">
-            Nenhuma tribo encontrada.
+            Nenhuma equipe encontrada.
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

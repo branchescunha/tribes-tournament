@@ -58,7 +58,7 @@ export default function Login() {
         className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8"
       >
         <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-          TribeScore
+          AcampGestor
         </p>
 
         <h1 className="mt-4 text-4xl font-bold leading-tight">
