@@ -459,9 +459,9 @@ export default function Tribes() {
             </>
           )}
 
-            <button
-              type="submit"
-              disabled={saving || !activeCampId}
+          <button
+            type="submit"
+            disabled={saving || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving

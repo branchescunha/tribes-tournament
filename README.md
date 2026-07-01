@@ -11,6 +11,8 @@ Produção: https://tribes-tournament.vercel.app
 - Solicitação controlada de acesso administrativo.
 - Revisão administrativa de solicitações de acesso.
 - Recuperação e redefinição de senha.
+- Gestão de acampamentos.
+- Seleção de acampamento ativo.
 - Cadastro e edição de equipes.
 - Cadastro e filtragem de participantes.
 - Registro de pontos e penalidades.
@@ -39,7 +41,7 @@ Produção: https://tribes-tournament.vercel.app
 - `/redefinir-senha`: criação de nova senha via Supabase Auth.
 - `/admin`: dashboard administrativo.
 - `/admin/conta`: configurações da conta.
-- `/admin/acampamentos`: gestão dos acampamentos do usuário.
+- `/admin/acampamentos`: gestão e seleção do acampamento ativo.
 - `/admin/solicitacoes`: revisão de solicitações de acesso.
 - `/admin/tribos`: gestão de equipes.
 - `/admin/participantes`: gestão de participantes.
@@ -63,6 +65,8 @@ A recuperação de senha começa em `/recuperar-senha` e a redefinição acontec
 
 ## Banco de Dados
 
+Os scripts SQL versionados devem ser executados manualmente no Supabase SQL Editor, na ordem abaixo.
+
 Para habilitar as solicitações de acesso reais, execute manualmente no Supabase SQL Editor o arquivo:
 
 ```text
@@ -84,7 +88,7 @@ supabase/sql/002_create_camps.sql
 
 Esse script cria a tabela `camps`, ativa RLS e permite que cada usuário autenticado crie, liste e edite apenas os próprios acampamentos.
 
-Nesta versão, o acampamento ativo é salvo localmente no navegador com a chave `acampgestor.activeCampId`. A seleção já aparece no layout administrativo e no dashboard, mas equipes, participantes, pontuações, ranking, gincanas, inspeções e exportação ainda não são filtrados por acampamento.
+O acampamento ativo é salvo localmente no navegador com a chave `acampgestor.activeCampId`. A seleção aparece no layout administrativo e define quais dados operacionais são exibidos nas telas.
 
 Para vincular os dados operacionais ao acampamento ativo, execute manualmente no Supabase SQL Editor o arquivo:
 
@@ -94,7 +98,9 @@ supabase/sql/003_add_camp_id_to_operational_tables.sql
 
 Esse script adiciona `camp_id` nullable em `tribes`, `participants`, `score_events`, `gymkhana_events`, `gymkhana_settings` e `room_inspections`, além de criar índices para consulta por acampamento.
 
-Dados antigos com `camp_id` vazio não são exibidos quando há um acampamento ativo selecionado. O próprio arquivo SQL inclui uma orientação comentada para migração manual segura desses dados.
+Dashboard, ranking, equipes, participantes, pontuação, histórico, exportação, gincanas e inspeções usam apenas dados do acampamento ativo. Dados antigos com `camp_id` vazio não são exibidos quando há um acampamento ativo selecionado.
+
+A migração de dados antigos deve ser feita manualmente e com cuidado. O próprio arquivo SQL inclui uma orientação comentada para associar dados antigos a um acampamento, caso isso seja necessário.
 
 ## Variáveis de Ambiente
 
@@ -135,7 +141,7 @@ Produção:
 
 MVP funcional em evolução.
 
-O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking, administração, solicitações de acesso, seleção de acampamento ativo e exportação. Próximas evoluções devem tratar a vinculação dos dados operacionais ao acampamento ativo, personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
+O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking, administração, solicitações de acesso, seleção de acampamento ativo, dados operacionais por acampamento e exportação. Próximas evoluções devem tratar personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
 
 ## Observações Técnicas
 
@@ -143,6 +149,7 @@ O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuaçã
 - O `npm audit` pode reportar 2 vulnerabilidades moderadas em `uuid` via `exceljs`.
 - A correção automática dessas vulnerabilidades exige `npm audit fix --force` e alteração insegura/downgrade do `exceljs`; por isso, foi aceita temporariamente.
 - A rota `/admin/tribos` foi mantida por compatibilidade técnica, embora a comunicação visível use "equipes".
+- `camp_id` ainda é nullable para permitir migração gradual de dados antigos.
 
 ## Estrutura do Projeto
 
