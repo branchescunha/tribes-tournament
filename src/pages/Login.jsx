@@ -128,8 +128,15 @@ export default function Login() {
         </Link>
 
         <Link
+          to="/solicitar-acesso"
+          className="mt-4 block text-center text-sm text-zinc-400 hover:text-yellow-500"
+        >
+          Ainda não tem conta? Solicitar acesso
+        </Link>
+
+        <Link
           to="/ranking"
-          className="mt-6 block text-center text-sm text-zinc-400 hover:text-yellow-500"
+          className="mt-4 block text-center text-sm text-zinc-400 hover:text-yellow-500"
         >
           Ver ranking do evento
         </Link>

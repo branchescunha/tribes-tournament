@@ -32,6 +32,7 @@ Produção: https://tribes-tournament.vercel.app
 
 - `/ranking`: ranking público do evento.
 - `/login`: acesso ao painel administrativo.
+- `/solicitar-acesso`: solicitação controlada de acesso administrativo.
 - `/recuperar-senha`: solicitação de recuperação de senha.
 - `/redefinir-senha`: criação de nova senha via Supabase Auth.
 - `/admin`: dashboard administrativo.
@@ -50,7 +51,7 @@ As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` contin
 
 O login usa e-mail e senha do Supabase Auth.
 
-O cadastro aberto ainda não existe neste MVP. Por enquanto, os usuários administrativos devem ser criados manualmente no Supabase Auth.
+O cadastro aberto ainda não existe neste MVP. A rota `/solicitar-acesso` apenas orienta a solicitação de acesso de forma controlada. Por enquanto, os usuários administrativos devem ser criados manualmente no Supabase Auth.
 
 A recuperação de senha começa em `/recuperar-senha` e a redefinição acontece em `/redefinir-senha`.
 

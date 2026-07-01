@@ -4,6 +4,7 @@ import Ranking from './pages/Ranking'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import RequestAccess from './pages/RequestAccess'
 import Admin from './pages/Admin'
 import Account from './pages/Account'
 import Dashboard from './pages/Dashboard'
@@ -24,6 +25,8 @@ export default function App() {
         <Route path="/ranking" element={<Ranking />} />
 
         <Route path="/login" element={<Login />} />
+
+        <Route path="/solicitar-acesso" element={<RequestAccess />} />
 
         <Route path="/recuperar-senha" element={<ForgotPassword />} />
         <Route
