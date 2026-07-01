@@ -46,6 +46,14 @@ Produção: https://tribes-tournament.vercel.app
 
 As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` continuam disponíveis apenas como compatibilidade e redirecionam para as rotas em português.
 
+## Autenticação
+
+O login usa e-mail e senha do Supabase Auth.
+
+O cadastro aberto ainda não existe neste MVP. Por enquanto, os usuários administrativos devem ser criados manualmente no Supabase Auth.
+
+A recuperação de senha começa em `/recuperar-senha` e a redefinição acontece em `/redefinir-senha`.
+
 ## Variáveis de Ambiente
 
 O projeto depende de variáveis de ambiente para conexão com o Supabase.
