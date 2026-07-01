@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import Ranking from './pages/Ranking'
+import PublicCampRanking from './pages/PublicCampRanking'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -59,6 +60,8 @@ export default function App() {
           <Route path="gincana" element={<Gymkhana />} />
           <Route path="inspecoes" element={<Inspections />} />
         </Route>
+
+        <Route path="/:campSlug" element={<PublicCampRanking />} />
 
         <Route path="*" element={<Navigate to="/ranking" />} />
       </Routes>

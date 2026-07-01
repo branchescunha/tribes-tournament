@@ -6,7 +6,7 @@ Produção: https://tribes-tournament.vercel.app
 
 ## Funcionalidades
 
-- Ranking público das equipes.
+- Ranking público das equipes por URL do acampamento.
 - Painel administrativo protegido por autenticação.
 - Solicitação controlada de acesso administrativo.
 - Revisão administrativa de solicitações de acesso.
@@ -34,7 +34,8 @@ Produção: https://tribes-tournament.vercel.app
 
 ## Rotas Principais
 
-- `/ranking`: ranking público do acampamento.
+- `/:campSlug`: ranking público do acampamento por URL própria.
+- `/ranking`: página informativa para solicitar ou acessar um link público de ranking.
 - `/login`: acesso ao painel administrativo.
 - `/solicitar-acesso`: solicitação controlada de acesso administrativo.
 - `/recuperar-senha`: solicitação de recuperação de senha.
@@ -102,6 +103,18 @@ Dashboard, ranking, equipes, participantes, pontuação, histórico, exportaçã
 
 A migração de dados antigos deve ser feita manualmente e com cuidado. O próprio arquivo SQL inclui uma orientação comentada para associar dados antigos a um acampamento, caso isso seja necessário.
 
+Para habilitar ranking público por URL do acampamento, execute manualmente no Supabase SQL Editor o arquivo:
+
+```text
+supabase/sql/004_add_public_slug_to_camps.sql
+```
+
+Esse script adiciona `slug` e `public_ranking_enabled` em `camps`, cria índice único para URLs públicas, bloqueia slugs reservados e libera leitura pública apenas de acampamentos com ranking público ativo.
+
+A leitura pública do ranking usa somente colunas mínimas de `camps` e views públicas restritas para `tribes`, `participants` e `score_events`. Dados pessoais completos de participantes, contatos, observações, solicitações de acesso, gincanas e inspeções não são expostos pelo ranking público.
+
+O ranking público por slug usa a rota `/:campSlug`, por exemplo `/retiro-de-jovens-2026`, e não depende do acampamento ativo salvo no navegador. As telas administrativas continuam usando o acampamento ativo localmente para filtrar os dados operacionais.
+
 ## Variáveis de Ambiente
 
 O projeto depende de variáveis de ambiente para conexão com o Supabase.
@@ -141,7 +154,7 @@ Produção:
 
 MVP funcional em evolução.
 
-O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking, administração, solicitações de acesso, seleção de acampamento ativo, dados operacionais por acampamento e exportação. Próximas evoluções devem tratar personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
+O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking público por URL, administração, solicitações de acesso, seleção de acampamento ativo, dados operacionais por acampamento e exportação. Próximas evoluções devem tratar personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
 
 ## Observações Técnicas
 
