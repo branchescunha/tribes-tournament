@@ -2,10 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const ADMIN_EMAIL = 'andrevinicius.bc@gmail.com'
-
 export default function ForgotPassword() {
-  const [email, setEmail] = useState(ADMIN_EMAIL)
+  const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -73,7 +71,8 @@ export default function ForgotPassword() {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="E-mail administrativo"
+          placeholder="seu-email@exemplo.com"
+          autoComplete="email"
           className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
         />
 

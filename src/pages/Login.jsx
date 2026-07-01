@@ -3,10 +3,9 @@ import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthContext } from '../hooks/useAuth'
 
-const ADMIN_EMAIL = 'andrevinicius.bc@gmail.com'
-
 export default function Login() {
   const { session, loadingAuth } = useAuthContext()
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -16,21 +15,23 @@ export default function Login() {
 
     setError('')
 
-    if (!password.trim()) {
-      setError('Informe a senha de acesso.')
+    const emailValue = email.trim()
+
+    if (!emailValue || !password.trim()) {
+      setError('Informe seu e-mail e senha para continuar.')
       return
     }
 
     setLoading(true)
 
     const { error: loginError } = await supabase.auth.signInWithPassword({
-      email: ADMIN_EMAIL,
+      email: emailValue,
       password,
     })
 
     if (loginError) {
       console.error(loginError)
-      setError('Senha inválida.')
+      setError('Não foi possível entrar. Verifique o e-mail e a senha.')
       setLoading(false)
       return
     }
@@ -68,8 +69,28 @@ export default function Login() {
           Acesse o painel administrativo do seu evento.
         </p>
 
-        <label htmlFor="admin-password" className="sr-only">
-          Senha de acesso
+        <label
+          htmlFor="admin-email"
+          className="mt-8 block text-sm font-medium text-zinc-300"
+        >
+          E-mail
+        </label>
+
+        <input
+          id="admin-email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="seu-email@exemplo.com"
+          autoComplete="email"
+          className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
+        />
+
+        <label
+          htmlFor="admin-password"
+          className="mt-5 block text-sm font-medium text-zinc-300"
+        >
+          Senha
         </label>
 
         <input
@@ -78,7 +99,8 @@ export default function Login() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Senha de acesso"
-          className="mt-8 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
+          autoComplete="current-password"
+          className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-4 outline-none focus:border-yellow-500"
         />
 
         {error && (
