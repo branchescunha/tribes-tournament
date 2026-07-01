@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -43,6 +45,7 @@ export default function Participants() {
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
   useEffect(() => {
     async function loadData() {
@@ -61,11 +64,13 @@ export default function Participants() {
             )
           `
           )
+          .eq('camp_id', activeCampId)
           .order('full_name')
 
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       if (participantsError || tribesError) {
@@ -79,8 +84,21 @@ export default function Participants() {
       setLoading(false)
     }
 
-    loadData()
-  }, [])
+    if (activeCampId) {
+      loadData()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setParticipants([])
+      setTribes([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   async function reloadParticipants() {
     const { data, error } = await supabase
@@ -95,6 +113,7 @@ export default function Participants() {
         )
       `
       )
+      .eq('camp_id', activeCampId)
       .order('full_name')
 
     if (error) {
@@ -199,6 +218,7 @@ export default function Participants() {
       .from('participants')
       .delete()
       .eq('id', editingId)
+      .eq('camp_id', activeCampId)
 
     if (error) {
       console.error(error)
@@ -213,6 +233,11 @@ export default function Participants() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de cadastrar participantes.')
+      return
+    }
 
     if (!form.full_name.trim()) {
       alert('Informe o nome do participante.')
@@ -249,10 +274,15 @@ export default function Participants() {
       is_board_member: form.is_board_member,
       tribe_id: form.tribe_id || null,
       is_active: form.is_active,
+      camp_id: activeCampId,
     }
 
     const request = editingId
-      ? supabase.from('participants').update(payload).eq('id', editingId)
+      ? supabase
+          .from('participants')
+          .update(payload)
+          .eq('id', editingId)
+          .eq('camp_id', activeCampId)
       : supabase.from('participants').insert(payload)
 
     const { error } = await request
@@ -462,6 +492,12 @@ export default function Participants() {
         description="Cadastro, organização e filtragem dos participantes do evento."
       />
 
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para cadastrar e gerenciar participantes." />
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6"
@@ -665,7 +701,7 @@ export default function Participants() {
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || !activeCampId}
               className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving

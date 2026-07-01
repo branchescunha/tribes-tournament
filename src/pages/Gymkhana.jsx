@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -19,18 +21,25 @@ export default function Gymkhana() {
   const [participants, setParticipants] = useState([])
   const [history, setHistory] = useState([])
   const [settings, setSettings] = useState(initialSettings)
+  const [settingsId, setSettingsId] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [savingSettings, setSavingSettings] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true)
+
+    if (!activeCampId) {
+      setParticipants([])
+      setHistory([])
+      setSettings(initialSettings)
+      setSettingsId(null)
+      setLoading(false)
+      return
+    }
 
     const { data: participantsData, error: participantsError } = await supabase
       .from('participants')
@@ -44,19 +53,21 @@ export default function Gymkhana() {
         )
       `
       )
+      .eq('camp_id', activeCampId)
       .eq('is_active', true)
       .order('full_name')
 
     const { data: historyData, error: historyError } = await supabase
       .from('gymkhana_events')
       .select('*')
+      .eq('camp_id', activeCampId)
       .order('created_at', { ascending: false })
 
-    const { data: settingsData, error: settingsError } = await supabase
+    const { data: settingsRows, error: settingsError } = await supabase
       .from('gymkhana_settings')
       .select('*')
-      .eq('id', 1)
-      .single()
+      .eq('camp_id', activeCampId)
+      .limit(1)
 
     if (participantsError || historyError || settingsError) {
       console.error(participantsError || historyError || settingsError)
@@ -64,15 +75,47 @@ export default function Gymkhana() {
       return
     }
 
+    let settingsData = settingsRows?.[0]
+
+    if (!settingsData) {
+      const { data: createdSettings, error: createSettingsError } =
+        await supabase
+          .from('gymkhana_settings')
+          .insert({
+            ...initialSettings,
+            camp_id: activeCampId,
+          })
+          .select()
+          .single()
+
+      if (createSettingsError) {
+        console.error(createSettingsError)
+        setLoading(false)
+        return
+      }
+
+      settingsData = createdSettings
+    }
+
     setParticipants(participantsData || [])
     setHistory(historyData || [])
+    setSettingsId(settingsData?.id || null)
     setSettings({
       team_a_name: settingsData?.team_a_name || 'Equipe A',
       team_b_name: settingsData?.team_b_name || 'Equipe B',
     })
-
     setLoading(false)
-  }
+  }, [activeCampId])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadData()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [loadData])
 
   function getTeamName(team) {
     if (team === 'A') return settings.team_a_name || 'Equipe A'
@@ -117,6 +160,11 @@ export default function Gymkhana() {
   }
 
   async function handleSaveSettings() {
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de configurar a gincana.')
+      return
+    }
+
     if (!settings.team_a_name.trim() || !settings.team_b_name.trim()) {
       alert('Informe o nome das duas equipes.')
       return
@@ -124,14 +172,22 @@ export default function Gymkhana() {
 
     setSavingSettings(true)
 
-    const { error } = await supabase
-      .from('gymkhana_settings')
-      .update({
-        team_a_name: settings.team_a_name.trim(),
-        team_b_name: settings.team_b_name.trim(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', 1)
+    const payload = {
+      team_a_name: settings.team_a_name.trim(),
+      team_b_name: settings.team_b_name.trim(),
+      updated_at: new Date().toISOString(),
+      camp_id: activeCampId,
+    }
+
+    const request = settingsId
+      ? supabase
+          .from('gymkhana_settings')
+          .update(payload)
+          .eq('id', settingsId)
+          .eq('camp_id', activeCampId)
+      : supabase.from('gymkhana_settings').insert(payload)
+
+    const { error } = await request
 
     if (error) {
       console.error(error)
@@ -170,6 +226,7 @@ export default function Gymkhana() {
         ? `${winningTeamName} | ${form.notes.trim()}`
         : winningTeamName,
       gymkhana_event_id: gymkhanaEventId,
+      camp_id: activeCampId,
     }))
 
     const { error } = await supabase
@@ -181,6 +238,11 @@ export default function Gymkhana() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de lançar gincanas.')
+      return
+    }
 
     if (!form.title.trim()) {
       alert('Informe o nome da prova.')
@@ -218,24 +280,28 @@ export default function Gymkhana() {
     try {
       const points = Number(form.points_per_member)
       const winningTeamName = getTeamName(form.winning_team)
+      const eventPayload = {
+        title: form.title.trim(),
+        winning_team: form.winning_team,
+        points_per_member: points,
+        notes: form.notes.trim() || null,
+        camp_id: activeCampId,
+      }
 
       if (editingId) {
         const { error: deleteScoresError } = await supabase
           .from('score_events')
           .delete()
           .eq('gymkhana_event_id', editingId)
+          .eq('camp_id', activeCampId)
 
         if (deleteScoresError) throw deleteScoresError
 
         const { error: updateEventError } = await supabase
           .from('gymkhana_events')
-          .update({
-            title: form.title.trim(),
-            winning_team: form.winning_team,
-            points_per_member: points,
-            notes: form.notes.trim() || null,
-          })
+          .update(eventPayload)
           .eq('id', editingId)
+          .eq('camp_id', activeCampId)
 
         if (updateEventError) throw updateEventError
 
@@ -243,12 +309,7 @@ export default function Gymkhana() {
       } else {
         const { data: gymkhanaEvent, error: createEventError } = await supabase
           .from('gymkhana_events')
-          .insert({
-            title: form.title.trim(),
-            winning_team: form.winning_team,
-            points_per_member: points,
-            notes: form.notes.trim() || null,
-          })
+          .insert(eventPayload)
           .select()
           .single()
 
@@ -300,6 +361,7 @@ export default function Gymkhana() {
         .from('score_events')
         .delete()
         .eq('gymkhana_event_id', eventItem.id)
+        .eq('camp_id', activeCampId)
 
       if (deleteScoresError) throw deleteScoresError
 
@@ -307,6 +369,7 @@ export default function Gymkhana() {
         .from('gymkhana_events')
         .delete()
         .eq('id', eventItem.id)
+        .eq('camp_id', activeCampId)
 
       if (deleteHistoryError) throw deleteHistoryError
 
@@ -481,6 +544,12 @@ export default function Gymkhana() {
         description="Organize as equipes da gincana e lance pontos automaticamente para os integrantes vencedores."
       />
 
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para configurar e lançar resultados da gincana." />
+        </div>
+      )}
+
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
         <h2 className="text-xl font-bold">Configuração das equipes</h2>
 
@@ -508,7 +577,7 @@ export default function Gymkhana() {
           <button
             type="button"
             onClick={handleSaveSettings}
-            disabled={savingSettings}
+            disabled={savingSettings || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {savingSettings ? 'Salvando...' : 'Salvar equipes'}
@@ -576,7 +645,7 @@ export default function Gymkhana() {
               <button
                 type="button"
                 onClick={handleDeleteEditing}
-                disabled={saving}
+                disabled={saving || !activeCampId}
                 className="rounded-xl border border-red-500/40 px-6 py-3 font-semibold text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Excluir
@@ -595,7 +664,7 @@ export default function Gymkhana() {
 
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import { calculateRanking } from '../domain/ranking'
 import { getCampNameStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
@@ -22,10 +22,15 @@ export default function Dashboard() {
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: participantsData, error: participantsError } =
-        await supabase.from('participants').select('*').eq('is_active', true)
+        await supabase
+          .from('participants')
+          .select('*')
+          .eq('camp_id', activeCampId)
+          .eq('is_active', true)
 
       const { data: eventsData, error: eventsError } = await supabase
         .from('score_events')
@@ -42,6 +47,7 @@ export default function Dashboard() {
           )
         `
         )
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
       if (tribesError || participantsError || eventsError) {
@@ -56,8 +62,22 @@ export default function Dashboard() {
       setLoading(false)
     }
 
-    loadDashboard()
-  }, [])
+    if (activeCampId) {
+      loadDashboard()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setTribes([])
+      setParticipants([])
+      setEvents([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   const ranking = useMemo(() => {
     return calculateRanking(tribes, events, participants, {
@@ -108,18 +128,8 @@ export default function Dashboard() {
           <strong className="text-white">{activeCampName}</strong>
         </div>
       ) : (
-        <div className="mb-6 rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5">
-          <p className="text-sm text-yellow-100">
-            Crie ou selecione um acampamento para começar a organizar equipes,
-            participantes e pontuações.
-          </p>
-
-          <Link
-            to="/admin/acampamentos"
-            className="mt-4 inline-flex rounded-xl bg-yellow-500 px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-yellow-400"
-          >
-            Ir para acampamentos
-          </Link>
+        <div className="mb-6">
+          <ActiveCampNotice message="Crie ou selecione um acampamento para começar a organizar equipes, participantes e pontuações." />
         </div>
       )}
 

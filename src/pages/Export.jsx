@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import { calculateRanking } from '../domain/ranking'
 import { summarizeScores } from '../domain/scoring'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 export default function Export() {
   const [loading, setLoading] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
   function formatDate(date) {
     if (!date) return ''
@@ -83,12 +86,18 @@ export default function Export() {
   }
 
   async function handleExport() {
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de exportar os dados.')
+      return
+    }
+
     setLoading(true)
 
     try {
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: participantsData, error: participantsError } =
@@ -104,6 +113,7 @@ export default function Export() {
           )
         `
           )
+          .eq('camp_id', activeCampId)
           .order('full_name')
 
       const { data: eventsData, error: eventsError } = await supabase
@@ -121,11 +131,13 @@ export default function Export() {
           )
         `
         )
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
       const { data: gymkhanaData, error: gymkhanaError } = await supabase
         .from('gymkhana_events')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
       const { data: inspectionsData, error: inspectionsError } = await supabase
@@ -142,13 +154,14 @@ export default function Export() {
           )
         `
         )
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
-      const { data: settingsData, error: settingsError } = await supabase
+      const { data: settingsRows, error: settingsError } = await supabase
         .from('gymkhana_settings')
         .select('*')
-        .eq('id', 1)
-        .single()
+        .eq('camp_id', activeCampId)
+        .limit(1)
 
       if (
         tribesError ||
@@ -173,6 +186,7 @@ export default function Export() {
       const events = eventsData || []
       const gymkhanaEvents = gymkhanaData || []
       const inspections = inspectionsData || []
+      const settingsData = settingsRows?.[0]
 
       const settings = {
         team_a_name: settingsData?.team_a_name || 'Equipe A',
@@ -624,6 +638,12 @@ export default function Export() {
         description="Exporte os dados do evento em uma planilha completa e organizada."
       />
 
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para exportar os dados operacionais." />
+        </div>
+      )}
+
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
         <h2 className="text-xl font-bold">Relatório completo em Excel</h2>
 
@@ -637,7 +657,7 @@ export default function Export() {
         <button
           type="button"
           onClick={handleExport}
-          disabled={loading}
+          disabled={loading || !activeCampId}
           className="mt-6 rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? 'Exportando...' : 'Exportar backup completo'}
