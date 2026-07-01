@@ -138,7 +138,7 @@ export default function History() {
     },
     {
       key: 'tribe',
-      label: 'Tribo',
+      label: 'Equipe',
       render: (eventItem) => (
         <div className="flex items-center justify-end gap-3 md:justify-start">
           <div
@@ -148,7 +148,7 @@ export default function History() {
             {eventItem.tribes?.symbol}
           </div>
 
-          <span>{eventItem.tribes?.name || 'Sem tribo'}</span>
+          <span>{eventItem.tribes?.name || 'Sem equipe'}</span>
         </div>
       ),
     },
@@ -228,7 +228,7 @@ export default function History() {
             name="search"
             value={filters.search}
             onChange={handleFilterChange}
-            placeholder="Buscar por motivo, tribo ou participante"
+            placeholder="Buscar por motivo, equipe ou participante"
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
           />
 
@@ -244,7 +244,7 @@ export default function History() {
             }
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="">Todas as tribos</option>
+            <option value="">Todas as equipes</option>
 
             {tribes.map((tribe) => (
               <option key={tribe.id} value={tribe.id}>

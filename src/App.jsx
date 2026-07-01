@@ -7,6 +7,7 @@ import ResetPassword from './pages/ResetPassword'
 import RequestAccess from './pages/RequestAccess'
 import Admin from './pages/Admin'
 import Account from './pages/Account'
+import AccessRequests from './pages/AccessRequests'
 import Dashboard from './pages/Dashboard'
 import Tribes from './pages/Tribes'
 import Participants from './pages/Participants'
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/admin" element={<Admin />}>
           <Route index element={<Dashboard />} />
           <Route path="conta" element={<Account />} />
+          <Route path="solicitacoes" element={<AccessRequests />} />
           <Route
             path="account"
             element={<Navigate to="/admin/conta" replace />}

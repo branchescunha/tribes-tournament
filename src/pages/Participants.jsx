@@ -398,7 +398,7 @@ export default function Participants() {
     },
     {
       key: 'tribe',
-      label: 'Tribo',
+      label: 'Equipe',
       render: (participant) =>
         participant.tribes ? (
           <div className="flex items-center justify-end gap-3 md:justify-start">
@@ -412,7 +412,7 @@ export default function Participants() {
             <span>{participant.tribes.name}</span>
           </div>
         ) : (
-          <span className="text-zinc-500">Sem tribo</span>
+          <span className="text-zinc-500">Sem equipe</span>
         ),
     },
     {
@@ -581,7 +581,7 @@ export default function Participants() {
             onChange={handleChange}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="">Sem tribo</option>
+            <option value="">Sem equipe</option>
 
             {tribes.map((tribe) => (
               <option key={tribe.id} value={tribe.id}>
@@ -713,7 +713,7 @@ export default function Participants() {
             onChange={handleFilterChange}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
           >
-            <option value="">Todas as tribos</option>
+            <option value="">Todas as equipes</option>
 
             {tribes.map((tribe) => (
               <option key={tribe.id} value={tribe.id}>

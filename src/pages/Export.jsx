@@ -210,7 +210,7 @@ export default function Export() {
       const leader = activeRanking[0]
 
       const workbook = new ExcelJS.Workbook()
-      workbook.creator = 'TribeScore'
+      workbook.creator = 'AcampGestor'
       workbook.created = new Date()
 
       addSheet(
@@ -222,10 +222,10 @@ export default function Export() {
         ],
         [
           { metric: 'Data da exportação', value: formatDate(new Date()) },
-          { metric: 'Tribos cadastradas', value: tribes.length },
-          { metric: 'Tribos ativas', value: activeRanking.length },
+          { metric: 'Equipes cadastradas', value: tribes.length },
+          { metric: 'Equipes ativas', value: activeRanking.length },
           {
-            metric: 'Tribos inativas',
+            metric: 'Equipes inativas',
             value: tribes.length - activeRanking.length,
           },
           {
@@ -243,9 +243,9 @@ export default function Export() {
           { metric: 'Pontos positivos', value: totalPositivePoints },
           { metric: 'Pontos perdidos', value: totalPenaltyPoints },
           { metric: 'Saldo geral de pontos', value: totalBalance },
-          { metric: 'Tribo líder atual', value: leader?.name || '-' },
+          { metric: 'Equipe líder atual', value: leader?.name || '-' },
           {
-            metric: 'Saldo da tribo líder',
+            metric: 'Saldo da equipe líder',
             value: leader ? leader.total : '-',
           },
           {
@@ -273,7 +273,7 @@ export default function Export() {
         [
           { header: 'Posição', key: 'position' },
           { header: 'ID', key: 'id' },
-          { header: 'Tribo', key: 'name' },
+          { header: 'Equipe', key: 'name' },
           { header: 'Símbolo', key: 'symbol' },
           { header: 'Cor', key: 'color' },
           { header: 'Tipo de quarto', key: 'room_type' },
@@ -308,7 +308,7 @@ export default function Export() {
 
       addSheet(
         workbook,
-        'Tribos',
+        'Equipes',
         [
           { header: 'ID', key: 'id' },
           { header: 'Nome', key: 'name' },
@@ -352,8 +352,8 @@ export default function Export() {
           { header: 'Equipe da gincana', key: 'gymkhana_team' },
           { header: 'Telefone', key: 'phone' },
           { header: 'Telefone responsável', key: 'guardian_phone' },
-          { header: 'ID da tribo', key: 'tribe_id' },
-          { header: 'Tribo', key: 'tribe_name' },
+          { header: 'ID da equipe', key: 'tribe_id' },
+          { header: 'Equipe', key: 'tribe_name' },
           { header: 'Diretoria', key: 'is_board_member' },
           { header: 'Status', key: 'is_active' },
           { header: 'Restrição alimentar', key: 'food_restriction' },
@@ -392,8 +392,8 @@ export default function Export() {
         [
           { header: 'ID', key: 'id' },
           { header: 'Data', key: 'created_at' },
-          { header: 'ID da tribo', key: 'tribe_id' },
-          { header: 'Tribo', key: 'tribe_name' },
+          { header: 'ID da equipe', key: 'tribe_id' },
+          { header: 'Equipe', key: 'tribe_name' },
           { header: 'ID do participante', key: 'participant_id' },
           { header: 'Participante', key: 'participant_name' },
           { header: 'Tipo', key: 'type' },
@@ -425,7 +425,7 @@ export default function Export() {
         'Pontos Positivos',
         [
           { header: 'Data', key: 'created_at' },
-          { header: 'Tribo', key: 'tribe_name' },
+          { header: 'Equipe', key: 'tribe_name' },
           { header: 'Participante', key: 'participant_name' },
           { header: 'Categoria', key: 'category' },
           { header: 'Pontos', key: 'points' },
@@ -449,7 +449,7 @@ export default function Export() {
         'Penalidades',
         [
           { header: 'Data', key: 'created_at' },
-          { header: 'Tribo', key: 'tribe_name' },
+          { header: 'Equipe', key: 'tribe_name' },
           { header: 'Participante', key: 'participant_name' },
           { header: 'Categoria', key: 'category' },
           { header: 'Pontos', key: 'points' },
@@ -509,7 +509,7 @@ export default function Export() {
         [
           { header: 'ID', key: 'id' },
           { header: 'Data', key: 'created_at' },
-          { header: 'Tribo', key: 'tribe_name' },
+          { header: 'Equipe', key: 'tribe_name' },
           { header: 'Tipo de quarto', key: 'room_type' },
           { header: 'Quarto', key: 'room_name' },
           { header: 'Dia', key: 'inspection_day' },
@@ -536,9 +536,9 @@ export default function Export() {
 
       addSheet(
         workbook,
-        'Estatísticas por Tribo',
+        'Estatísticas por Equipe',
         [
-          { header: 'Tribo', key: 'name' },
+          { header: 'Equipe', key: 'name' },
           { header: 'Tipo de quarto', key: 'room_type' },
           { header: 'Quarto', key: 'room_name' },
           { header: 'Responsável', key: 'leader_name' },
@@ -570,7 +570,7 @@ export default function Export() {
           { header: 'Equipe', key: 'team' },
           { header: 'Integrantes', key: 'members' },
           { header: 'Participantes ativos', key: 'active_members' },
-          { header: 'Tribos representadas', key: 'represented_tribes' },
+          { header: 'Equipes representadas', key: 'represented_tribes' },
         ],
         [
           {
@@ -604,7 +604,7 @@ export default function Export() {
 
       saveAs(
         new Blob([buffer]),
-        `tribescore-backup-completo-${new Date()
+        `acampgestor-backup-completo-${new Date()
           .toISOString()
           .slice(0, 10)}.xlsx`
       )
@@ -628,9 +628,9 @@ export default function Export() {
         <h2 className="text-xl font-bold">Relatório completo em Excel</h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
-          O arquivo inclui resumo geral, ranking, tribos, participantes,
+          O arquivo inclui resumo geral, ranking, equipes, participantes,
           histórico completo, pontos positivos, penalidades, gincana, inspeções
-          de quartos, estatísticas por tribo e estatísticas das equipes da
+          de quartos, estatísticas por equipe e estatísticas das equipes da
           gincana.
         </p>
 

@@ -108,7 +108,7 @@ export default function ResetPassword() {
         className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900 p-8"
       >
         <p className="text-xs uppercase tracking-[0.3em] text-yellow-500">
-          TribeScore
+          AcampGestor
         </p>
 
         <h1 className="mt-4 text-4xl font-bold leading-tight">
@@ -116,7 +116,7 @@ export default function ResetPassword() {
         </h1>
 
         <p className="mt-4 text-zinc-400">
-          Crie uma nova senha para continuar usando o TribeScore.
+          Crie uma nova senha para continuar usando o AcampGestor.
         </p>
 
         {!checkingSession && !hasRecoverySession && (

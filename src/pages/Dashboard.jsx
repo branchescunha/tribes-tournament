@@ -79,7 +79,7 @@ export default function Dashboard() {
     return (
       <section>
         <PageHeader
-          eyebrow="TribeScore"
+          eyebrow="AcampGestor"
           title="Dashboard"
           description="Visão geral do evento."
         />
@@ -91,14 +91,14 @@ export default function Dashboard() {
   return (
     <section>
       <PageHeader
-        eyebrow="TribeScore"
+        eyebrow="AcampGestor"
         title="Dashboard"
         description="Visão geral do evento."
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="text-zinc-400">Tribos ativas</p>
+          <p className="text-zinc-400">Equipes ativas</p>
           <strong className="mt-4 block text-3xl">{activeTribes}</strong>
         </div>
 
@@ -119,7 +119,7 @@ export default function Dashboard() {
         </div>
 
         <div className="rounded-2xl border border-yellow-500/60 bg-yellow-500/10 p-6">
-          <p className="text-zinc-400">Tribo líder</p>
+          <p className="text-zinc-400">Equipe líder</p>
 
           {leader ? (
             <div className="mt-4 flex items-center gap-4">
@@ -167,7 +167,7 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <strong>{eventItem.tribes?.name || 'Sem tribo'}</strong>
+                    <strong>{eventItem.tribes?.name || 'Sem equipe'}</strong>
 
                     <p className="text-sm text-zinc-400">
                       {eventItem.participants?.full_name || 'Equipe inteira'} ·{' '}

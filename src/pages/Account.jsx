@@ -74,7 +74,7 @@ export default function Account() {
         <h1 className="mt-3 text-3xl font-bold">Configurações da conta</h1>
 
         <p className="mt-3 max-w-2xl text-zinc-400">
-          Gerencie o acesso administrativo do evento no TribeScore.
+          Gerencie o acesso administrativo do acampamento no AcampGestor.
         </p>
       </header>
 

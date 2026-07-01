@@ -59,11 +59,11 @@ export default function Ranking() {
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-yellow-500 md:text-sm">
-              TribeScore
+              AcampGestor
             </p>
 
             <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
-              Ranking das Tribos
+              Ranking das Equipes
             </h1>
 
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
@@ -87,10 +87,10 @@ export default function Ranking() {
           </div>
         ) : ranking.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
-            <h2 className="text-2xl font-bold">Nenhuma tribo ativa ainda</h2>
+            <h2 className="text-2xl font-bold">Nenhuma equipe ativa ainda</h2>
 
             <p className="mt-3 text-zinc-400">
-              Uma tribo aparece no ranking quando possuir pelo menos um
+              Uma equipe aparece no ranking quando possuir pelo menos um
               participante ativo.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function Ranking() {
                 <thead className="bg-zinc-950">
                   <tr className="text-left text-sm">
                     <th className="px-6 py-5">Posição</th>
-                    <th className="px-6 py-5">Tribo</th>
+                    <th className="px-6 py-5">Equipe</th>
                     <th className="px-6 py-5">Quarto</th>
                     <th className="px-6 py-5">Responsável</th>
                     <th className="px-6 py-5">Integrantes</th>

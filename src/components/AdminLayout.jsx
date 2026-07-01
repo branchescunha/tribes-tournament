@@ -17,7 +17,9 @@ export default function AdminLayout({ children }) {
                 Admin
               </p>
 
-              <h1 className="mt-2 text-xl font-bold">Painel do evento</h1>
+              <h1 className="mt-2 text-xl font-bold">
+                Painel do acampamento
+              </h1>
             </div>
 
             <button
