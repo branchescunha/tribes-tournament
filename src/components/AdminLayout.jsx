@@ -1,9 +1,15 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
+import { getCampNameStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
 
 export default function AdminLayout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { activeCampId } = useActiveCamp()
+  const activeCampName = activeCampId
+    ? window.localStorage.getItem(getCampNameStorageKey(activeCampId))
+    : ''
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -31,6 +37,25 @@ export default function AdminLayout({ children }) {
               <Menu size={24} />
             </button>
           </header>
+
+          <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-900 px-5 py-4 text-sm text-zinc-300">
+            {activeCampName ? (
+              <span>
+                Acampamento ativo:{' '}
+                <strong className="text-white">{activeCampName}</strong>
+              </span>
+            ) : (
+              <span>
+                Nenhum acampamento ativo selecionado.{' '}
+                <Link
+                  to="/admin/acampamentos"
+                  className="font-semibold text-yellow-400 hover:text-yellow-300"
+                >
+                  Criar ou selecionar acampamento
+                </Link>
+              </span>
+            )}
+          </div>
 
           {children}
         </section>

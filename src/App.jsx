@@ -8,6 +8,7 @@ import RequestAccess from './pages/RequestAccess'
 import Admin from './pages/Admin'
 import Account from './pages/Account'
 import AccessRequests from './pages/AccessRequests'
+import Camps from './pages/Camps'
 import Dashboard from './pages/Dashboard'
 import Tribes from './pages/Tribes'
 import Participants from './pages/Participants'
@@ -45,6 +46,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="conta" element={<Account />} />
           <Route path="solicitacoes" element={<AccessRequests />} />
+          <Route path="acampamentos" element={<Camps />} />
           <Route
             path="account"
             element={<Navigate to="/admin/conta" replace />}

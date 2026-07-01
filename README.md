@@ -39,6 +39,7 @@ Produção: https://tribes-tournament.vercel.app
 - `/redefinir-senha`: criação de nova senha via Supabase Auth.
 - `/admin`: dashboard administrativo.
 - `/admin/conta`: configurações da conta.
+- `/admin/acampamentos`: gestão dos acampamentos do usuário.
 - `/admin/solicitacoes`: revisão de solicitações de acesso.
 - `/admin/tribos`: gestão de equipes.
 - `/admin/participantes`: gestão de participantes.
@@ -74,6 +75,16 @@ Esse script cria a tabela `access_requests`, ativa RLS e define policies para:
 - visitantes anônimos não listarem solicitações;
 - usuários autenticados listarem solicitações;
 - usuários autenticados revisarem solicitações.
+
+Para habilitar a gestão de acampamentos, execute manualmente no Supabase SQL Editor o arquivo:
+
+```text
+supabase/sql/002_create_camps.sql
+```
+
+Esse script cria a tabela `camps`, ativa RLS e permite que cada usuário autenticado crie, liste e edite apenas os próprios acampamentos.
+
+Nesta versão, o acampamento ativo é salvo localmente no navegador com a chave `acampgestor.activeCampId`. A seleção já aparece no layout administrativo e no dashboard, mas equipes, participantes, pontuações, ranking, gincanas, inspeções e exportação ainda não são filtrados por acampamento.
 
 ## Variáveis de Ambiente
 
@@ -114,7 +125,7 @@ Produção:
 
 MVP funcional em evolução.
 
-O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking, administração, solicitações de acesso e exportação. Próximas evoluções devem tratar personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
+O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuação, ranking, administração, solicitações de acesso, seleção de acampamento ativo e exportação. Próximas evoluções devem tratar a vinculação dos dados operacionais ao acampamento ativo, personalização por evento, identidade visual configurável e suporte mais avançado para uso por outras igrejas.
 
 ## Observações Técnicas
 
