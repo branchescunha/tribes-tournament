@@ -14,6 +14,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import { getCampSlugStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const links = [
@@ -33,6 +34,11 @@ const links = [
 export default function Sidebar({ isMenuOpen = false, onClose }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { activeCampId } = useActiveCamp()
+  const activeCampSlug = activeCampId
+    ? window.localStorage.getItem(getCampSlugStorageKey(activeCampId))
+    : ''
+  const rankingPath = activeCampSlug ? `/${activeCampSlug}` : '/ranking'
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut()
@@ -100,7 +106,7 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
 
       <div className="mt-8 space-y-3">
         <Link
-          to="/ranking"
+          to={rankingPath}
           onClick={onClose}
           className="flex items-center gap-3 rounded-xl border border-zinc-800 px-4 py-3 text-sm text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
         >

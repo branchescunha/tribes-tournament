@@ -4,6 +4,7 @@ import ResponsiveTable from '../components/ResponsiveTable'
 import { useAuthContext } from '../hooks/useAuth'
 import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
+import { generateSlug, getSlugValidationError } from '../utils/slug'
 
 const initialForm = {
   name: '',
@@ -12,6 +13,8 @@ const initialForm = {
   start_date: '',
   end_date: '',
   status: 'draft',
+  slug: '',
+  public_ranking_enabled: true,
 }
 
 const statusLabels = {
@@ -35,7 +38,13 @@ export default function Camps() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [slugTouched, setSlugTouched] = useState(false)
   const { activeCampId, setActiveCamp } = useActiveCamp(camps)
+
+  function getPublicRankingUrl(slug) {
+    if (!slug || typeof window === 'undefined') return ''
+    return `${window.location.origin}/${slug}`
+  }
 
   const loadCamps = useCallback(async () => {
     setLoading(true)
@@ -68,12 +77,24 @@ export default function Camps() {
   }, [loadCamps])
 
   function handleChange(event) {
-    const { name, value } = event.target
+    const { name, value, type, checked } = event.target
 
     setForm((currentForm) => ({
       ...currentForm,
-      [name]: value,
+      [name]:
+        type === 'checkbox'
+          ? checked
+          : name === 'slug'
+            ? generateSlug(value)
+            : value,
+      ...(name === 'name' && !editingId && !slugTouched
+        ? { slug: generateSlug(value) }
+        : {}),
     }))
+
+    if (name === 'slug') {
+      setSlugTouched(true)
+    }
   }
 
   function validateForm() {
@@ -89,12 +110,19 @@ export default function Camps() {
       return 'A data de fim não pode ser anterior à data de início.'
     }
 
+    const slugError = getSlugValidationError(form.slug.trim())
+
+    if (slugError) {
+      return slugError
+    }
+
     return ''
   }
 
   function resetForm() {
     setForm(initialForm)
     setEditingId(null)
+    setSlugTouched(false)
   }
 
   function handleEdit(camp) {
@@ -106,10 +134,28 @@ export default function Camps() {
       start_date: camp.start_date || '',
       end_date: camp.end_date || '',
       status: camp.status || 'draft',
+      slug: camp.slug || '',
+      public_ranking_enabled: camp.public_ranking_enabled ?? true,
     })
+    setSlugTouched(true)
     setError('')
     setSuccess('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  async function handleCopyLink(slug) {
+    const publicRankingUrl = getPublicRankingUrl(slug)
+
+    if (!publicRankingUrl || !navigator.clipboard) return
+
+    try {
+      await navigator.clipboard.writeText(publicRankingUrl)
+      setSuccess('Link público copiado.')
+      setError('')
+    } catch (copyError) {
+      console.error(copyError)
+      setError('Não foi possível copiar o link automaticamente.')
+    }
   }
 
   async function handleSubmit(event) {
@@ -135,27 +181,45 @@ export default function Camps() {
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       status: form.status,
+      slug: form.slug.trim() || null,
+      public_ranking_enabled: form.public_ranking_enabled,
       updated_at: new Date().toISOString(),
     }
 
     const request = editingId
-      ? supabase.from('camps').update(payload).eq('id', editingId)
-      : supabase.from('camps').insert({
-          ...payload,
-          created_by: session?.user?.id,
-        })
+      ? supabase
+          .from('camps')
+          .update(payload)
+          .eq('id', editingId)
+          .select()
+          .single()
+      : supabase
+          .from('camps')
+          .insert({
+            ...payload,
+            created_by: session?.user?.id,
+          })
+          .select()
+          .single()
 
-    const { error: saveError } = await request
+    const { data: savedCamp, error: saveError } = await request
 
     if (saveError) {
       console.error(saveError)
-      setError('Não foi possível salvar o acampamento.')
+      setError(
+        saveError.code === '23505'
+          ? 'Essa URL pública já está em uso. Escolha outra.'
+          : 'Não foi possível salvar o acampamento.',
+      )
       setSaving(false)
       return
     }
 
     resetForm()
     await loadCamps()
+    if (savedCamp?.id === activeCampId) {
+      setActiveCamp(savedCamp)
+    }
     setSuccess(
       wasEditing
         ? 'Acampamento atualizado com sucesso.'
@@ -168,6 +232,8 @@ export default function Camps() {
     if (!value) return '-'
     return new Date(`${value}T00:00:00`).toLocaleDateString('pt-BR')
   }
+
+  const publicRankingPreview = getPublicRankingUrl(form.slug)
 
   const columns = [
     {
@@ -217,6 +283,39 @@ export default function Camps() {
           {statusLabels[camp.status] || camp.status}
         </span>
       ),
+    },
+    {
+      key: 'public_ranking',
+      label: 'Ranking público',
+      render: (camp) =>
+        camp.slug ? (
+          <div className="flex flex-col gap-2">
+            <a
+              href={`/${camp.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-yellow-400 hover:text-yellow-300"
+            >
+              Ver ranking
+            </a>
+
+            <button
+              type="button"
+              onClick={() => handleCopyLink(camp.slug)}
+              className="text-left text-xs text-zinc-400 transition hover:text-white"
+            >
+              Copiar link
+            </button>
+
+            {!camp.public_ranking_enabled && (
+              <span className="text-xs text-zinc-500">Ranking desativado</span>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-zinc-500">
+            Defina uma URL pública ao editar.
+          </span>
+        ),
     },
     {
       key: 'actions',
@@ -302,6 +401,22 @@ export default function Camps() {
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
+          <div className="xl:col-span-2">
+            <input
+              name="slug"
+              value={form.slug}
+              onChange={handleChange}
+              placeholder="url-publica-do-acampamento"
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
+            />
+
+            <p className="mt-2 text-xs text-zinc-500">
+              {publicRankingPreview
+                ? publicRankingPreview
+                : 'A URL pública será gerada a partir do nome do acampamento.'}
+            </p>
+          </div>
+
           <input
             name="start_date"
             value={form.start_date}
@@ -328,6 +443,17 @@ export default function Camps() {
             <option value="active">Ativo</option>
             <option value="archived">Arquivado</option>
           </select>
+
+          <label className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-300">
+            <input
+              type="checkbox"
+              name="public_ranking_enabled"
+              checked={form.public_ranking_enabled}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+            Ranking público ativo
+          </label>
         </div>
 
         <div className="mt-6 flex flex-col justify-end gap-3 sm:flex-row">
