@@ -16,7 +16,7 @@ import { supabase } from '../lib/supabase'
 
 const links = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-  { label: 'Conta', path: '/admin/account', icon: UserRound },
+  { label: 'Conta', path: '/admin/conta', icon: UserRound },
   { label: 'Tribos', path: '/admin/tribos', icon: Trophy },
   { label: 'Participantes', path: '/admin/participantes', icon: Users },
   { label: 'Pontuação', path: '/admin/pontuacao', icon: PlusCircle },

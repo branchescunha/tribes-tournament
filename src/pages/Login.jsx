@@ -99,7 +99,7 @@ export default function Login() {
         </button>
 
         <Link
-          to="/forgot-password"
+          to="/recuperar-senha"
           className="mt-5 block text-center text-sm text-zinc-400 hover:text-yellow-500"
         >
           Esqueci minha senha
