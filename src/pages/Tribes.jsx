@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const colorOptions = [
@@ -40,6 +42,7 @@ export default function Tribes() {
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
   useEffect(() => {
     async function loadData() {
@@ -48,12 +51,14 @@ export default function Tribes() {
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: participantsData, error: participantsError } =
         await supabase
           .from('participants')
           .select('*')
+          .eq('camp_id', activeCampId)
           .eq('is_active', true)
           .order('full_name')
 
@@ -68,13 +73,27 @@ export default function Tribes() {
       setLoading(false)
     }
 
-    loadData()
-  }, [])
+    if (activeCampId) {
+      loadData()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setTribes([])
+      setParticipants([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   async function reloadTribes() {
     const { data, error } = await supabase
       .from('tribes')
       .select('*')
+      .eq('camp_id', activeCampId)
       .order('name')
 
     if (error) {
@@ -152,7 +171,11 @@ export default function Tribes() {
 
     if (!confirmDelete) return
 
-    const { error } = await supabase.from('tribes').delete().eq('id', editingId)
+    const { error } = await supabase
+      .from('tribes')
+      .delete()
+      .eq('id', editingId)
+      .eq('camp_id', activeCampId)
 
     if (error) {
       console.error(error)
@@ -167,6 +190,11 @@ export default function Tribes() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de cadastrar equipes.')
+      return
+    }
 
     if (!form.name.trim()) {
       alert('Informe o nome da equipe.')
@@ -188,10 +216,15 @@ export default function Tribes() {
       room_name: form.room_name.trim() || null,
       leader_name: form.leader_name.trim() || null,
       is_active: editingId ? getActiveStatus(editingId) : false,
+      camp_id: activeCampId,
     }
 
     const request = editingId
-      ? supabase.from('tribes').update(payload).eq('id', editingId)
+      ? supabase
+          .from('tribes')
+          .update(payload)
+          .eq('id', editingId)
+          .eq('camp_id', activeCampId)
       : supabase.from('tribes').insert(payload)
 
     const { error } = await request
@@ -288,6 +321,12 @@ export default function Tribes() {
         title="Equipes"
         description="Gerenciamento das equipes, quartos e responsáveis."
       />
+
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para cadastrar e gerenciar equipes." />
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -420,9 +459,9 @@ export default function Tribes() {
             </>
           )}
 
-          <button
-            type="submit"
-            disabled={saving}
+            <button
+              type="submit"
+              disabled={saving || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving

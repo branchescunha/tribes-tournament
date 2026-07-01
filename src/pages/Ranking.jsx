@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import { calculateRanking } from '../domain/ranking'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 export default function Ranking() {
   const [ranking, setRanking] = useState([])
   const [loading, setLoading] = useState(true)
+  const { activeCampId } = useActiveCamp()
 
   useEffect(() => {
     async function loadRanking() {
@@ -13,16 +16,19 @@ export default function Ranking() {
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: eventsData, error: eventsError } = await supabase
         .from('score_events')
         .select('tribe_id, points')
+        .eq('camp_id', activeCampId)
 
       const { data: participantsData, error: participantsError } =
         await supabase
           .from('participants')
           .select('id, tribe_id, is_active')
+          .eq('camp_id', activeCampId)
           .eq('is_active', true)
 
       if (tribesError || eventsError || participantsError) {
@@ -42,8 +48,20 @@ export default function Ranking() {
       setLoading(false)
     }
 
-    loadRanking()
-  }, [])
+    if (activeCampId) {
+      loadRanking()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setRanking([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   function getPointsColor(total, index) {
     if (total < 0) return 'text-red-400'
@@ -84,6 +102,10 @@ export default function Ranking() {
         {loading ? (
           <div className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center text-zinc-400">
             Carregando ranking...
+          </div>
+        ) : !activeCampId ? (
+          <div className="mt-10">
+            <ActiveCampNotice message="Selecione um acampamento para visualizar o ranking público." />
           </div>
         ) : ranking.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
 import { getScoreCategories, getScoreTypeLabel } from '../domain/scoring'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const initialFilters = {
@@ -18,6 +20,7 @@ export default function History() {
   const [participants, setParticipants] = useState([])
   const [filters, setFilters] = useState(initialFilters)
   const [loading, setLoading] = useState(true)
+  const { activeCampId } = useActiveCamp()
 
   useEffect(() => {
     async function loadData() {
@@ -38,15 +41,21 @@ export default function History() {
           )
         `
         )
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: participantsData, error: participantsError } =
-        await supabase.from('participants').select('*').order('full_name')
+        await supabase
+          .from('participants')
+          .select('*')
+          .eq('camp_id', activeCampId)
+          .order('full_name')
 
       if (eventsError || tribesError || participantsError) {
         console.error(eventsError || tribesError || participantsError)
@@ -60,8 +69,22 @@ export default function History() {
       setLoading(false)
     }
 
-    loadData()
-  }, [])
+    if (activeCampId) {
+      loadData()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setEvents([])
+      setTribes([])
+      setParticipants([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   function handleFilterChange(event) {
     const { name, value } = event.target
@@ -202,6 +225,12 @@ export default function History() {
         title="Histórico de Lançamentos"
         description="Consulta completa de pontos e penalidades registrados."
       />
+
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para consultar o histórico." />
+        </div>
+      )}
 
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">

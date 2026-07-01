@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
 import {
@@ -6,6 +7,7 @@ import {
   getScoreTypeLabel,
   normalizeScoreAmount,
 } from '../domain/scoring'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -35,6 +37,7 @@ export default function Scores() {
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
   useEffect(() => {
     async function loadData() {
@@ -43,12 +46,14 @@ export default function Scores() {
       const { data: tribesData, error: tribesError } = await supabase
         .from('tribes')
         .select('*')
+        .eq('camp_id', activeCampId)
         .order('name')
 
       const { data: participantsData, error: participantsError } =
         await supabase
           .from('participants')
           .select('*')
+          .eq('camp_id', activeCampId)
           .eq('is_active', true)
           .order('full_name')
 
@@ -67,6 +72,7 @@ export default function Scores() {
           )
         `
         )
+        .eq('camp_id', activeCampId)
         .order('created_at', { ascending: false })
 
       if (tribesError || participantsError || eventsError) {
@@ -81,8 +87,22 @@ export default function Scores() {
       setLoading(false)
     }
 
-    loadData()
-  }, [])
+    if (activeCampId) {
+      loadData()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setTribes([])
+      setParticipants([])
+      setEvents([])
+      setLoading(false)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeCampId])
 
   async function reloadEvents() {
     const { data, error } = await supabase
@@ -100,6 +120,7 @@ export default function Scores() {
         )
       `
       )
+      .eq('camp_id', activeCampId)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -185,6 +206,7 @@ export default function Scores() {
       .from('score_events')
       .delete()
       .eq('id', editingId)
+      .eq('camp_id', activeCampId)
 
     if (error) {
       console.error(error)
@@ -199,6 +221,11 @@ export default function Scores() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de lançar pontuações.')
+      return
+    }
 
     if (!form.tribe_id) {
       alert('Selecione uma equipe ou um participante.')
@@ -225,10 +252,15 @@ export default function Scores() {
       points: normalizeScoreAmount(form.type, form.points),
       reason: form.reason.trim() || null,
       notes: form.notes.trim() || null,
+      camp_id: activeCampId,
     }
 
     const request = editingId
-      ? supabase.from('score_events').update(payload).eq('id', editingId)
+      ? supabase
+          .from('score_events')
+          .update(payload)
+          .eq('id', editingId)
+          .eq('camp_id', activeCampId)
       : supabase.from('score_events').insert(payload)
 
     const { error } = await request
@@ -380,6 +412,12 @@ export default function Scores() {
         description="Registro de pontos, penalidades e histórico das equipes."
       />
 
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para lançar e consultar pontuações." />
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6"
@@ -497,7 +535,7 @@ export default function Scores() {
 
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving

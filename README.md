@@ -86,6 +86,16 @@ Esse script cria a tabela `camps`, ativa RLS e permite que cada usuário autenti
 
 Nesta versão, o acampamento ativo é salvo localmente no navegador com a chave `acampgestor.activeCampId`. A seleção já aparece no layout administrativo e no dashboard, mas equipes, participantes, pontuações, ranking, gincanas, inspeções e exportação ainda não são filtrados por acampamento.
 
+Para vincular os dados operacionais ao acampamento ativo, execute manualmente no Supabase SQL Editor o arquivo:
+
+```text
+supabase/sql/003_add_camp_id_to_operational_tables.sql
+```
+
+Esse script adiciona `camp_id` nullable em `tribes`, `participants`, `score_events`, `gymkhana_events`, `gymkhana_settings` e `room_inspections`, além de criar índices para consulta por acampamento.
+
+Dados antigos com `camp_id` vazio não são exibidos quando há um acampamento ativo selecionado. O próprio arquivo SQL inclui uma orientação comentada para migração manual segura desses dados.
+
 ## Variáveis de Ambiente
 
 O projeto depende de variáveis de ambiente para conexão com o Supabase.

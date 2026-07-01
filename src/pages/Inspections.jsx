@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import ActiveCampNotice from '../components/ActiveCampNotice'
 import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
 import { normalizeScoreAmount } from '../domain/scoring'
+import { useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
 const initialForm = {
@@ -33,11 +35,20 @@ export default function Inspections() {
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const { activeCampId } = useActiveCamp()
 
   const loadData = useCallback(async () => {
+    if (!activeCampId) {
+      setTribes([])
+      setInspections([])
+      setLoading(false)
+      return
+    }
+
     const { data: tribesData, error: tribesError } = await supabase
       .from('tribes')
       .select('*')
+      .eq('camp_id', activeCampId)
       .order('name')
 
     const { data: inspectionsData, error: inspectionsError } = await supabase
@@ -54,6 +65,7 @@ export default function Inspections() {
         )
       `
       )
+      .eq('camp_id', activeCampId)
       .order('created_at', { ascending: false })
 
     if (tribesError || inspectionsError) {
@@ -65,7 +77,7 @@ export default function Inspections() {
     setTribes(tribesData || [])
     setInspections(inspectionsData || [])
     setLoading(false)
-  }, [])
+  }, [activeCampId])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -127,6 +139,7 @@ export default function Inspections() {
       reason: `Inspeção ${payload.inspection_day} - ${payload.inspection_period}`,
       notes: payload.notes,
       room_inspection_id: inspectionId,
+      camp_id: activeCampId,
     })
 
     if (error) throw error
@@ -134,6 +147,11 @@ export default function Inspections() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!activeCampId) {
+      alert('Selecione um acampamento antes de lançar inspeções.')
+      return
+    }
 
     if (!form.tribe_id) {
       alert('Selecione uma equipe.')
@@ -166,6 +184,7 @@ export default function Inspections() {
         points: normalizeScoreAmount(form.type, form.points),
         has_photo: form.has_photo,
         notes: form.notes.trim() || null,
+        camp_id: activeCampId,
       }
 
       if (editingId) {
@@ -173,6 +192,7 @@ export default function Inspections() {
           .from('score_events')
           .delete()
           .eq('room_inspection_id', editingId)
+          .eq('camp_id', activeCampId)
 
         if (deleteOldScoreError) throw deleteOldScoreError
 
@@ -180,6 +200,7 @@ export default function Inspections() {
           .from('room_inspections')
           .update(payload)
           .eq('id', editingId)
+          .eq('camp_id', activeCampId)
 
         if (updateError) throw updateError
 
@@ -221,6 +242,7 @@ export default function Inspections() {
         .from('score_events')
         .delete()
         .eq('room_inspection_id', editingId)
+        .eq('camp_id', activeCampId)
 
       if (deleteScoreError) throw deleteScoreError
 
@@ -228,6 +250,7 @@ export default function Inspections() {
         .from('room_inspections')
         .delete()
         .eq('id', editingId)
+        .eq('camp_id', activeCampId)
 
       if (deleteInspectionError) throw deleteInspectionError
 
@@ -370,6 +393,12 @@ export default function Inspections() {
         description="Controle operacional das inspeções dos quartos."
       />
 
+      {!activeCampId && (
+        <div className="mb-6">
+          <ActiveCampNotice message="Selecione um acampamento para lançar e consultar inspeções." />
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 md:p-6"
@@ -482,7 +511,7 @@ export default function Inspections() {
 
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || !activeCampId}
             className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving
