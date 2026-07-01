@@ -529,7 +529,7 @@ export default function Participants() {
             type="date"
             value={form.birth_date}
             onChange={handleChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
           <input
@@ -537,7 +537,7 @@ export default function Participants() {
             value={form.church}
             onChange={handleChange}
             placeholder="Igreja"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
           <input
@@ -545,14 +545,14 @@ export default function Participants() {
             value={form.cpf}
             onChange={handleChange}
             placeholder="CPF"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
           <select
             name="shirt_size"
             value={form.shirt_size}
             onChange={handleChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Tamanho da camiseta</option>
             <option value="PP">PP</option>
@@ -740,14 +740,14 @@ export default function Participants() {
             value={filters.search}
             onChange={handleFilterChange}
             placeholder="Buscar por nome, telefone, igreja ou CPF"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500 xl:col-span-2"
           />
 
           <select
             name="tribe_id"
             value={filters.tribe_id}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Todas as equipes</option>
 
@@ -762,7 +762,7 @@ export default function Participants() {
             name="gymkhana_team"
             value={filters.gymkhana_team}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Todas as equipes</option>
             <option value="A">Equipe A</option>
@@ -774,7 +774,7 @@ export default function Participants() {
             name="group_type"
             value={filters.group_type}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">UPA / UMP</option>
             <option value="UPA">UPA</option>
@@ -785,7 +785,7 @@ export default function Participants() {
             name="gender"
             value={filters.gender}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Todos os sexos</option>
             <option value="Masculino">Masculino</option>
@@ -799,14 +799,14 @@ export default function Participants() {
             type="number"
             min="0"
             placeholder="Filtrar por idade"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4          py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           />
 
           <select
             name="shirt_size"
             value={filters.shirt_size}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Todas as camisetas</option>
             <option value="PP">PP</option>
@@ -820,7 +820,7 @@ export default function Participants() {
             name="board"
             value={filters.board}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Organização e participantes</option>
             <option value="true">Somente organização</option>
@@ -831,7 +831,7 @@ export default function Participants() {
             name="status"
             value={filters.status}
             onChange={handleFilterChange}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950         px-4 py-3 outline-none focus:border-yellow-500"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-yellow-500"
           >
             <option value="">Todos os status</option>
             <option value="true">Ativos</option>
