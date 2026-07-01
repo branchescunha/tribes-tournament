@@ -188,7 +188,7 @@ export default function ResetPassword() {
         </button>
 
         <Link
-          to="/forgot-password"
+          to="/recuperar-senha"
           className="mt-6 block text-center text-sm text-zinc-400 hover:text-yellow-500"
         >
           Solicitar novo e-mail de recuperação

@@ -57,14 +57,14 @@ Para que a recuperação de senha funcione corretamente, configure as URLs de re
 Ambiente local:
 
 - `http://localhost:4000`
-- `http://localhost:4000/reset-password`
+- `http://localhost:4000/redefinir-senha`
 - `http://localhost:4000/**`
 
 Produção:
 
-- `https://dominio-do-deploy.com`
-- `https://dominio-do-deploy.com/reset-password`
-- `https://dominio-do-deploy.com/**`
+- `https://tribes-tournament.vercel.app`
+- `https://tribes-tournament.vercel.app/redefinir-senha`
+- `https://tribes-tournament.vercel.app/**`
 
 ## Deploy do MVP
 
@@ -81,13 +81,15 @@ Configuração do projeto:
 
 Configure as variáveis diretamente na plataforma de deploy. Não versionar `.env` nem valores reais de credenciais.
 
-Para rotas client-side como `/login`, `/forgot-password`, `/reset-password`, `/admin`, `/admin/account` e `/ranking`, o projeto inclui `vercel.json` com fallback para `index.html`.
+Para rotas client-side como `/login`, `/recuperar-senha`, `/redefinir-senha`, `/admin`, `/admin/conta` e `/ranking`, o projeto inclui `vercel.json` com fallback para `index.html`.
+
+As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` continuam disponíveis apenas como compatibilidade e redirecionam para as rotas em português.
 
 Antes de publicar, confirme no Supabase Auth as URLs de redirecionamento do ambiente de produção:
 
-- `https://URL_DO_DEPLOY`
-- `https://URL_DO_DEPLOY/reset-password`
-- `https://URL_DO_DEPLOY/**`
+- `https://tribes-tournament.vercel.app`
+- `https://tribes-tournament.vercel.app/redefinir-senha`
+- `https://tribes-tournament.vercel.app/**`
 
 O `npm audit` ainda pode reportar vulnerabilidades moderadas de `uuid` via `exceljs`. Essa correção exige `npm audit fix --force` com mudança insegura de versão do `exceljs`, então deve ser tratada em etapa própria.
 

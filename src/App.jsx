@@ -25,13 +25,25 @@ export default function App() {
 
         <Route path="/login" element={<Login />} />
 
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/recuperar-senha" element={<ForgotPassword />} />
+        <Route
+          path="/forgot-password"
+          element={<Navigate to="/recuperar-senha" replace />}
+        />
 
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/redefinir-senha" element={<ResetPassword />} />
+        <Route
+          path="/reset-password"
+          element={<Navigate to="/redefinir-senha" replace />}
+        />
 
         <Route path="/admin" element={<Admin />}>
           <Route index element={<Dashboard />} />
-          <Route path="account" element={<Account />} />
+          <Route path="conta" element={<Account />} />
+          <Route
+            path="account"
+            element={<Navigate to="/admin/conta" replace />}
+          />
           <Route path="tribos" element={<Tribes />} />
           <Route path="participantes" element={<Participants />} />
           <Route path="pontuacao" element={<Scores />} />
