@@ -8,6 +8,7 @@ Produção: https://tribes-tournament.vercel.app
 
 - Ranking público das equipes por URL do acampamento.
 - Painel administrativo protegido por autenticação.
+- Perfis administrativos com separação entre ADMIN e GESTOR.
 - Solicitação controlada de acesso administrativo.
 - Revisão administrativa de solicitações de acesso.
 - Recuperação e redefinição de senha.
@@ -66,9 +67,17 @@ As rotas antigas `/forgot-password`, `/reset-password` e `/admin/account` contin
 
 O login usa e-mail e senha do Supabase Auth.
 
+O AcampGestor trabalha com três tipos de acesso:
+
+- ACAMPANTE: não possui login e acessa apenas o ranking público do acampamento em `/:campSlug`.
+- GESTOR: possui login e gerencia apenas os próprios acampamentos pelo painel `/:campSlug/admin`.
+- ADMIN: possui login, acessa `/admin`, revisa solicitações, vê todos os acampamentos e pode gerenciar qualquer acampamento.
+
 O cadastro aberto ainda não existe neste MVP. A rota `/solicitar-acesso` salva pedidos de acesso na tabela `access_requests`, mas não cria usuário automaticamente.
 
 Usuários administrativos ainda devem ser criados manualmente no Supabase Auth. A aprovação de uma solicitação em `/admin/solicitacoes` apenas marca o pedido como aprovado para controle interno.
+
+Depois de criar o usuário manualmente no Supabase Auth, também é necessário criar o perfil correspondente na tabela `profiles` com role `admin` ou `gestor`.
 
 A recuperação de senha começa em `/recuperar-senha` e a redefinição acontece em `/redefinir-senha`.
 
@@ -125,6 +134,28 @@ O ranking público por slug usa a rota `/:campSlug`, por exemplo `/retiro-de-jov
 
 O painel do gestor por slug usa a rota `/:campSlug/admin`. Ao acessar essa rota autenticado, o sistema resolve o acampamento pelo slug, define esse acampamento como ativo e reutiliza as telas administrativas existentes. A rota `/admin` continua disponível para compatibilidade e usa o acampamento ativo selecionado.
 
+Para habilitar perfis e permissões reais de ADMIN e GESTOR, execute manualmente no Supabase SQL Editor o arquivo:
+
+```text
+supabase/sql/005_create_profiles_and_roles.sql
+```
+
+Esse script cria a tabela `profiles`, funções auxiliares de autorização, policies para solicitações de acesso, acampamentos e dados operacionais, além de restringir gestores aos acampamentos criados por eles.
+
+O primeiro ADMIN deve ser vinculado manualmente a um usuário existente do Supabase Auth:
+
+```sql
+insert into public.profiles (id, name, role, status)
+values ('<auth-user-id>', 'André Cunha', 'admin', 'active');
+```
+
+Gestores também devem ser vinculados manualmente após a criação do usuário no Supabase Auth:
+
+```sql
+insert into public.profiles (id, name, role, status)
+values ('<auth-user-id>', '<Nome do Gestor>', 'gestor', 'active');
+```
+
 ## Variáveis de Ambiente
 
 O projeto depende de variáveis de ambiente para conexão com o Supabase.
@@ -173,7 +204,7 @@ O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuaçã
 - A correção automática dessas vulnerabilidades exige `npm audit fix --force` e alteração insegura/downgrade do `exceljs`; por isso, foi aceita temporariamente.
 - A rota `/admin/tribos` foi mantida por compatibilidade técnica, embora a comunicação visível use "equipes".
 - `camp_id` ainda é nullable para permitir migração gradual de dados antigos.
-- Roles e permissões administrativas avançadas ainda não foram implementadas; o acesso por slug usa a autenticação atual e as regras existentes do Supabase.
+- Roles e permissões administrativas foram estruturadas com `profiles`, ADMIN e GESTOR. A criação de usuários no Supabase Auth ainda é manual nesta versão.
 
 ## Estrutura do Projeto
 

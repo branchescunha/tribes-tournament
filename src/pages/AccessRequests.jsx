@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
+import RoleAccessNotice from '../components/RoleAccessNotice'
 import ResponsiveTable from '../components/ResponsiveTable'
 import { useAuthContext } from '../hooks/useAuth'
+import { useUserProfile } from '../hooks/useUserProfile'
 import { supabase } from '../lib/supabase'
 
 const statusLabels = {
@@ -18,6 +20,13 @@ const statusStyles = {
 
 export default function AccessRequests() {
   const { session } = useAuthContext()
+  const {
+    profile,
+    isAdmin,
+    isActive,
+    loading: loadingProfile,
+    error: profileError,
+  } = useUserProfile()
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState(null)
@@ -45,6 +54,8 @@ export default function AccessRequests() {
   }, [])
 
   useEffect(() => {
+    if (!isAdmin) return undefined
+
     const timeoutId = window.setTimeout(() => {
       void loadRequests()
     }, 0)
@@ -52,7 +63,7 @@ export default function AccessRequests() {
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [loadRequests])
+  }, [isAdmin, loadRequests])
 
   function formatDate(value) {
     if (!value) return '-'
@@ -171,6 +182,49 @@ export default function AccessRequests() {
         ),
     },
   ]
+
+  if (loadingProfile) {
+    return <p className="text-zinc-400">Verificando perfil de acesso...</p>
+  }
+
+  if (profileError) {
+    return (
+      <RoleAccessNotice
+        title="Perfil indisponível"
+        message={profileError}
+        actionPath=""
+      />
+    )
+  }
+
+  if (!profile) {
+    return (
+      <RoleAccessNotice
+        title="Perfil de acesso não encontrado"
+        message="Seu usuário ainda não possui um perfil de acesso. Entre em contato com o administrador da plataforma."
+        actionPath=""
+      />
+    )
+  }
+
+  if (!isActive) {
+    return (
+      <RoleAccessNotice
+        title="Acesso suspenso"
+        message="Seu acesso está suspenso. Entre em contato com o administrador da plataforma."
+        actionPath=""
+      />
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <RoleAccessNotice
+        title="Acesso restrito ao administrador"
+        message="Somente o administrador geral da plataforma pode revisar solicitações de acesso."
+      />
+    )
+  }
 
   return (
     <section>

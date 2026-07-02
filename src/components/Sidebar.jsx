@@ -15,17 +15,24 @@ import {
   X,
 } from 'lucide-react'
 import { getCampSlugStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
+import { useUserProfile } from '../hooks/useUserProfile'
 import { supabase } from '../lib/supabase'
 
 export default function Sidebar({ isMenuOpen = false, onClose }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAdmin, isGestor } = useUserProfile()
   const { activeCampId } = useActiveCamp()
   const activeCampSlug = activeCampId
     ? window.localStorage.getItem(getCampSlugStorageKey(activeCampId))
     : ''
   const campAdminBasePath = activeCampSlug ? `/${activeCampSlug}/admin` : ''
   const rankingPath = activeCampSlug ? `/${activeCampSlug}` : '/ranking'
+  const roleLabel = isAdmin
+    ? 'Administrador geral'
+    : isGestor
+      ? 'Gestor'
+      : 'Perfil pendente'
   const links = [
     {
       label: 'Dashboard',
@@ -34,7 +41,9 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
     },
     { label: 'Conta', path: '/admin/conta', icon: UserRound },
     { label: 'Acampamentos', path: '/admin/acampamentos', icon: TentTree },
-    { label: 'Solicitações', path: '/admin/solicitacoes', icon: FileUser },
+    ...(isAdmin
+      ? [{ label: 'Solicitações', path: '/admin/solicitacoes', icon: FileUser }]
+      : []),
     {
       label: 'Equipes',
       path: campAdminBasePath ? `${campAdminBasePath}/equipes` : '/admin/tribos',
@@ -108,9 +117,7 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
 
           <h1 className="mt-3 text-xl font-bold">Painel do acampamento</h1>
 
-          <p className="mt-2 text-sm text-zinc-400">
-            Gestão de acampamentos
-          </p>
+          <p className="mt-2 text-sm text-zinc-400">{roleLabel}</p>
         </div>
 
         <button
