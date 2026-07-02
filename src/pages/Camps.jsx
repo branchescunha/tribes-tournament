@@ -3,6 +3,7 @@ import PageHeader from '../components/PageHeader'
 import ResponsiveTable from '../components/ResponsiveTable'
 import { useAuthContext } from '../hooks/useAuth'
 import { useActiveCamp } from '../hooks/useActiveCamp'
+import { useUserProfile } from '../hooks/useUserProfile'
 import { supabase } from '../lib/supabase'
 import { generateSlug, getSlugValidationError } from '../utils/slug'
 
@@ -31,6 +32,7 @@ const statusStyles = {
 
 export default function Camps() {
   const { session } = useAuthContext()
+  const { isAdmin } = useUserProfile()
   const [camps, setCamps] = useState([])
   const [form, setForm] = useState(initialForm)
   const [editingId, setEditingId] = useState(null)
@@ -239,6 +241,10 @@ export default function Camps() {
   }
 
   const publicRankingPreview = getPublicRankingUrl(form.slug)
+  const pageTitle = isAdmin ? 'Todos os acampamentos' : 'Meus acampamentos'
+  const pageDescription = isAdmin
+    ? 'Gerencie e selecione acampamentos cadastrados na plataforma.'
+    : 'Crie, edite e selecione o acampamento ativo para organizar a operação do evento.'
 
   const columns = [
     {
@@ -366,8 +372,8 @@ export default function Camps() {
     <section>
       <PageHeader
         eyebrow="Acampamentos"
-        title="Meus acampamentos"
-        description="Crie, edite e selecione o acampamento ativo para organizar a operação do evento."
+        title={pageTitle}
+        description={pageDescription}
       />
 
       {error && (

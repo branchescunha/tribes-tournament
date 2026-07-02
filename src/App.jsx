@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Ranking from './pages/Ranking'
 import PublicCampRanking from './pages/PublicCampRanking'
 import CampAdminRoute from './components/CampAdminRoute'
+import AdminOnlyRoute from './components/AdminOnlyRoute'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -45,9 +46,23 @@ export default function App() {
         />
 
         <Route path="/admin" element={<Admin />}>
-          <Route index element={<Dashboard />} />
+          <Route
+            index
+            element={
+              <AdminOnlyRoute redirectGestorTo="/admin/acampamentos">
+                <Dashboard />
+              </AdminOnlyRoute>
+            }
+          />
           <Route path="conta" element={<Account />} />
-          <Route path="solicitacoes" element={<AccessRequests />} />
+          <Route
+            path="solicitacoes"
+            element={
+              <AdminOnlyRoute>
+                <AccessRequests />
+              </AdminOnlyRoute>
+            }
+          />
           <Route path="acampamentos" element={<Camps />} />
           <Route
             path="account"

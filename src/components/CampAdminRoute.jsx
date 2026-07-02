@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router-dom'
 import AdminLayout from './AdminLayout'
+import RoleAccessNotice from './RoleAccessNotice'
 import { useAuthContext } from '../hooks/useAuth'
 import { useActiveCamp } from '../hooks/useActiveCamp'
+import { useUserProfile } from '../hooks/useUserProfile'
 import { supabase } from '../lib/supabase'
 import { isValidSlug } from '../utils/slug'
 
@@ -10,6 +12,14 @@ export default function CampAdminRoute() {
   const { campSlug = '' } = useParams()
   const location = useLocation()
   const { session, loadingAuth } = useAuthContext()
+  const {
+    profile,
+    isAdmin,
+    isGestor,
+    isActive,
+    loading: loadingProfile,
+    error: profileError,
+  } = useUserProfile()
   const { setActiveCamp } = useActiveCamp()
   const [loadingCamp, setLoadingCamp] = useState(true)
   const [camp, setCamp] = useState(null)
@@ -29,7 +39,7 @@ export default function CampAdminRoute() {
 
       const { data, error } = await supabase
         .from('camps')
-        .select('id, name, slug')
+        .select('id, name, slug, created_by')
         .eq('slug', campSlug)
         .maybeSingle()
 
@@ -41,17 +51,32 @@ export default function CampAdminRoute() {
         return
       }
 
+      if (!isAdmin && (!isGestor || data.created_by !== session.user.id)) {
+        setCamp(null)
+        setNotFound(true)
+        setLoadingCamp(false)
+        return
+      }
+
       setCamp(data)
       setActiveCamp(data)
       setLoadingCamp(false)
     }
 
-    if (session) {
+    if (session && profile && isActive) {
       loadCamp()
     }
-  }, [campSlug, session, setActiveCamp])
+  }, [
+    campSlug,
+    isActive,
+    isAdmin,
+    isGestor,
+    profile,
+    session,
+    setActiveCamp,
+  ])
 
-  if (loadingAuth || (session && loadingCamp)) {
+  if (loadingAuth || loadingProfile) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
         <p className="text-zinc-400">Carregando painel do acampamento...</p>
@@ -61,6 +86,50 @@ export default function CampAdminRoute() {
 
   if (!session) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
+
+  if (profileError) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-5 text-white">
+        <RoleAccessNotice
+          title="Perfil indisponível"
+          message={profileError}
+          actionPath=""
+        />
+      </main>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-5 text-white">
+        <RoleAccessNotice
+          title="Perfil de acesso não encontrado"
+          message="Seu usuário ainda não possui um perfil de acesso. Entre em contato com o administrador da plataforma."
+          actionPath=""
+        />
+      </main>
+    )
+  }
+
+  if (!isActive) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-5 text-white">
+        <RoleAccessNotice
+          title="Acesso suspenso"
+          message="Seu acesso está suspenso. Entre em contato com o administrador da plataforma."
+          actionPath=""
+        />
+      </main>
+    )
+  }
+
+  if (loadingCamp) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        <p className="text-zinc-400">Carregando painel do acampamento...</p>
+      </main>
+    )
   }
 
   if (notFound || !camp) {
