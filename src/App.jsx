@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import Ranking from './pages/Ranking'
 import PublicCampRanking from './pages/PublicCampRanking'
+import CampAdminRoute from './components/CampAdminRoute'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -59,6 +60,17 @@ export default function App() {
           <Route path="exportacao" element={<Export />} />
           <Route path="gincana" element={<Gymkhana />} />
           <Route path="inspecoes" element={<Inspections />} />
+        </Route>
+
+        <Route path="/:campSlug/admin" element={<CampAdminRoute />}>
+          <Route index element={<Dashboard />} />
+          <Route path="equipes" element={<Tribes />} />
+          <Route path="participantes" element={<Participants />} />
+          <Route path="pontuacao" element={<Scores />} />
+          <Route path="historico" element={<History />} />
+          <Route path="gincana" element={<Gymkhana />} />
+          <Route path="inspecoes" element={<Inspections />} />
+          <Route path="exportacao" element={<Export />} />
         </Route>
 
         <Route path="/:campSlug" element={<PublicCampRanking />} />

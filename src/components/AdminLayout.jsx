@@ -1,15 +1,24 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
-import { getCampNameStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
+import {
+  getCampNameStorageKey,
+  getCampSlugStorageKey,
+  useActiveCamp,
+} from '../hooks/useActiveCamp'
 
 export default function AdminLayout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { campSlug } = useParams()
   const { activeCampId } = useActiveCamp()
   const activeCampName = activeCampId
     ? window.localStorage.getItem(getCampNameStorageKey(activeCampId))
     : ''
+  const activeCampSlug = activeCampId
+    ? window.localStorage.getItem(getCampSlugStorageKey(activeCampId))
+    : ''
+  const isCampAdminRoute = Boolean(campSlug)
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -24,7 +33,9 @@ export default function AdminLayout({ children }) {
               </p>
 
               <h1 className="mt-2 text-xl font-bold">
-                Painel do acampamento
+                {isCampAdminRoute
+                  ? 'Painel do acampamento'
+                  : 'Área administrativa'}
               </h1>
             </div>
 
@@ -40,10 +51,23 @@ export default function AdminLayout({ children }) {
 
           <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-900 px-5 py-4 text-sm text-zinc-300">
             {activeCampName ? (
-              <span>
-                Acampamento ativo:{' '}
-                <strong className="text-white">{activeCampName}</strong>
-              </span>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span>
+                  {isCampAdminRoute
+                    ? 'Painel do acampamento: '
+                    : 'Acampamento ativo: '}
+                  <strong className="text-white">{activeCampName}</strong>
+                </span>
+
+                {!isCampAdminRoute && activeCampSlug && (
+                  <Link
+                    to={`/${activeCampSlug}/admin`}
+                    className="font-semibold text-yellow-400 hover:text-yellow-300"
+                  >
+                    Abrir painel por URL própria
+                  </Link>
+                )}
+              </div>
             ) : (
               <span>
                 Nenhum acampamento ativo selecionado.{' '}

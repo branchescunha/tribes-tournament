@@ -1,14 +1,22 @@
 import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthContext } from '../hooks/useAuth'
 
+function getSafeRedirectPath(value) {
+  if (typeof value !== 'string') return '/admin'
+  if (!value.startsWith('/') || value.startsWith('//')) return '/admin'
+  return value
+}
+
 export default function Login() {
+  const location = useLocation()
   const { session, loadingAuth } = useAuthContext()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const redirectPath = getSafeRedirectPath(location.state?.from)
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -48,7 +56,7 @@ export default function Login() {
   }
 
   if (session) {
-    return <Navigate to="/admin" replace />
+    return <Navigate to={redirectPath} replace />
   }
 
   return (
