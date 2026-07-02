@@ -46,6 +46,11 @@ export default function Camps() {
     return `${window.location.origin}/${slug}`
   }
 
+  function getCampAdminUrl(slug) {
+    if (!slug || typeof window === 'undefined') return ''
+    return `${window.location.origin}/${slug}/admin`
+  }
+
   const loadCamps = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -286,7 +291,7 @@ export default function Camps() {
     },
     {
       key: 'public_ranking',
-      label: 'Ranking público',
+      label: 'Links do acampamento',
       render: (camp) =>
         camp.slug ? (
           <div className="flex flex-col gap-2">
@@ -299,12 +304,27 @@ export default function Camps() {
               Ver ranking
             </a>
 
+            <a
+              href={`/${camp.slug}/admin`}
+              className="text-sm font-semibold text-zinc-300 hover:text-white"
+            >
+              Abrir painel
+            </a>
+
+            <span className="text-xs text-zinc-500">
+              Ranking: {getPublicRankingUrl(camp.slug)}
+            </span>
+
+            <span className="text-xs text-zinc-500">
+              Painel: {getCampAdminUrl(camp.slug)}
+            </span>
+
             <button
               type="button"
               onClick={() => handleCopyLink(camp.slug)}
               className="text-left text-xs text-zinc-400 transition hover:text-white"
             >
-              Copiar link
+              Copiar link do ranking
             </button>
 
             {!camp.public_ranking_enabled && (
@@ -313,7 +333,7 @@ export default function Camps() {
           </div>
         ) : (
           <span className="text-xs text-zinc-500">
-            Defina uma URL pública ao editar.
+            Defina uma URL pública para habilitar os links do acampamento.
           </span>
         ),
     },

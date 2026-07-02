@@ -35,12 +35,20 @@ Produção: https://tribes-tournament.vercel.app
 ## Rotas Principais
 
 - `/:campSlug`: ranking público do acampamento por URL própria.
+- `/:campSlug/admin`: painel do gestor daquele acampamento.
+- `/:campSlug/admin/equipes`: gestão de equipes daquele acampamento.
+- `/:campSlug/admin/participantes`: gestão de participantes daquele acampamento.
+- `/:campSlug/admin/pontuacao`: lançamentos de pontos e penalidades daquele acampamento.
+- `/:campSlug/admin/historico`: histórico de lançamentos daquele acampamento.
+- `/:campSlug/admin/gincana`: controle da gincana daquele acampamento.
+- `/:campSlug/admin/inspecoes`: controle de inspeções daquele acampamento.
+- `/:campSlug/admin/exportacao`: exportação dos dados daquele acampamento.
 - `/ranking`: página informativa para solicitar ou acessar um link público de ranking.
 - `/login`: acesso ao painel administrativo.
 - `/solicitar-acesso`: solicitação controlada de acesso administrativo.
 - `/recuperar-senha`: solicitação de recuperação de senha.
 - `/redefinir-senha`: criação de nova senha via Supabase Auth.
-- `/admin`: dashboard administrativo.
+- `/admin`: área administrativa geral e compatibilidade com o fluxo antigo.
 - `/admin/conta`: configurações da conta.
 - `/admin/acampamentos`: gestão e seleção do acampamento ativo.
 - `/admin/solicitacoes`: revisão de solicitações de acesso.
@@ -113,7 +121,9 @@ Esse script adiciona `slug` e `public_ranking_enabled` em `camps`, cria índice 
 
 A leitura pública do ranking usa somente colunas mínimas de `camps` e views públicas restritas para `tribes`, `participants` e `score_events`. Dados pessoais completos de participantes, contatos, observações, solicitações de acesso, gincanas e inspeções não são expostos pelo ranking público.
 
-O ranking público por slug usa a rota `/:campSlug`, por exemplo `/retiro-de-jovens-2026`, e não depende do acampamento ativo salvo no navegador. As telas administrativas continuam usando o acampamento ativo localmente para filtrar os dados operacionais.
+O ranking público por slug usa a rota `/:campSlug`, por exemplo `/retiro-de-jovens-2026`, e não depende do acampamento ativo salvo no navegador.
+
+O painel do gestor por slug usa a rota `/:campSlug/admin`. Ao acessar essa rota autenticado, o sistema resolve o acampamento pelo slug, define esse acampamento como ativo e reutiliza as telas administrativas existentes. A rota `/admin` continua disponível para compatibilidade e usa o acampamento ativo selecionado.
 
 ## Variáveis de Ambiente
 
@@ -163,6 +173,7 @@ O AcampGestor já cobre o fluxo principal de gestão de acampamentos, pontuaçã
 - A correção automática dessas vulnerabilidades exige `npm audit fix --force` e alteração insegura/downgrade do `exceljs`; por isso, foi aceita temporariamente.
 - A rota `/admin/tribos` foi mantida por compatibilidade técnica, embora a comunicação visível use "equipes".
 - `camp_id` ainda é nullable para permitir migração gradual de dados antigos.
+- Roles e permissões administrativas avançadas ainda não foram implementadas; o acesso por slug usa a autenticação atual e as regras existentes do Supabase.
 
 ## Estrutura do Projeto
 

@@ -17,20 +17,6 @@ import {
 import { getCampSlugStorageKey, useActiveCamp } from '../hooks/useActiveCamp'
 import { supabase } from '../lib/supabase'
 
-const links = [
-  { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-  { label: 'Conta', path: '/admin/conta', icon: UserRound },
-  { label: 'Acampamentos', path: '/admin/acampamentos', icon: TentTree },
-  { label: 'Solicitações', path: '/admin/solicitacoes', icon: FileUser },
-  { label: 'Equipes', path: '/admin/tribos', icon: Trophy },
-  { label: 'Participantes', path: '/admin/participantes', icon: Users },
-  { label: 'Pontuação', path: '/admin/pontuacao', icon: PlusCircle },
-  { label: 'Gincana', path: '/admin/gincana', icon: Swords },
-  { label: 'Inspeções', path: '/admin/inspecoes', icon: ClipboardCheck },
-  { label: 'Histórico', path: '/admin/historico', icon: History },
-  { label: 'Exportação', path: '/admin/exportacao', icon: Download },
-]
-
 export default function Sidebar({ isMenuOpen = false, onClose }) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -38,7 +24,63 @@ export default function Sidebar({ isMenuOpen = false, onClose }) {
   const activeCampSlug = activeCampId
     ? window.localStorage.getItem(getCampSlugStorageKey(activeCampId))
     : ''
+  const campAdminBasePath = activeCampSlug ? `/${activeCampSlug}/admin` : ''
   const rankingPath = activeCampSlug ? `/${activeCampSlug}` : '/ranking'
+  const links = [
+    {
+      label: 'Dashboard',
+      path: campAdminBasePath || '/admin',
+      icon: LayoutDashboard,
+    },
+    { label: 'Conta', path: '/admin/conta', icon: UserRound },
+    { label: 'Acampamentos', path: '/admin/acampamentos', icon: TentTree },
+    { label: 'Solicitações', path: '/admin/solicitacoes', icon: FileUser },
+    {
+      label: 'Equipes',
+      path: campAdminBasePath ? `${campAdminBasePath}/equipes` : '/admin/tribos',
+      icon: Trophy,
+    },
+    {
+      label: 'Participantes',
+      path: campAdminBasePath
+        ? `${campAdminBasePath}/participantes`
+        : '/admin/participantes',
+      icon: Users,
+    },
+    {
+      label: 'Pontuação',
+      path: campAdminBasePath
+        ? `${campAdminBasePath}/pontuacao`
+        : '/admin/pontuacao',
+      icon: PlusCircle,
+    },
+    {
+      label: 'Gincana',
+      path: campAdminBasePath ? `${campAdminBasePath}/gincana` : '/admin/gincana',
+      icon: Swords,
+    },
+    {
+      label: 'Inspeções',
+      path: campAdminBasePath
+        ? `${campAdminBasePath}/inspecoes`
+        : '/admin/inspecoes',
+      icon: ClipboardCheck,
+    },
+    {
+      label: 'Histórico',
+      path: campAdminBasePath
+        ? `${campAdminBasePath}/historico`
+        : '/admin/historico',
+      icon: History,
+    },
+    {
+      label: 'Exportação',
+      path: campAdminBasePath
+        ? `${campAdminBasePath}/exportacao`
+        : '/admin/exportacao',
+      icon: Download,
+    },
+  ]
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut()
